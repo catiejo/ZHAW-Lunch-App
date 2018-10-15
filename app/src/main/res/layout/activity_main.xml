@@ -16,7 +16,7 @@
         android:text="@string/curMensaText"
         android:textSize="17sp"
         android:textStyle="bold"
-        app:fontFamily="sans-serif"
+        app:fontFamily="@font/rubik"
         app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintTop_toTopOf="parent" />
 
