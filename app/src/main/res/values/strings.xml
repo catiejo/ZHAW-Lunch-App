@@ -1,3 +1,5 @@
 <resources>
     <string name="app_name">What\'s For Lunch</string>
+    <string name="curMensaText">Technikum</string>
 </resources>
+
