@@ -38,14 +38,14 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
         mRecyclerView.setLayoutManager(mLayoutManager);
 
         // Set up the adapter...this connects the views (layouts?) to the data (my custom class, MenuCard)
-        mAdapter = new MenuCardAdapter(GetMenuCardList());
+        mAdapter = new MenuCardAdapter(getMenuCardList());
         mRecyclerView.setAdapter(mAdapter);
 
         mFab = (FloatingActionButton) findViewById(R.id.fab);
         mFab.setOnClickListener(this);
 
     }
-    private List<MenuCard> GetMenuCardList() {
+    private List<MenuCard> getMenuCardList() {
         List<MenuCard> cards = new ArrayList<>();
         cards.add(new MenuCard(R.string.foodCounter_1, R.string.menuItem_1, R.string.filler, R.string.studentPrice, R.string.employeePrice, R.string.externalPrice));
         cards.add(new MenuCard(R.string.foodCounter_2, R.string.menuItem_2, R.string.filler, R.string.studentPrice, R.string.employeePrice, R.string.externalPrice));
