@@ -1,5 +1,7 @@
 <resources>
     <string name="app_name">What\'s For Lunch</string>
+    <string name="dayPicker">Choose a Day</string>
+    <string name="mensaPicker">Choose a Mensa</string>
     <string name="curMensaText">Technikum</string>
     <string name="openingHours">Lunch: 11:30 - 13:30\nHours: 10:00 - 17:00</string>
     <string name="filler">Lorem ipsum dolor sit amet, consectetur adipiscing elit.  Etiam eget ligula eu lectus lobortis condimentum.</string>

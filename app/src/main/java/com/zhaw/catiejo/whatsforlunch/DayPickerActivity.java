@@ -1,9 +1,13 @@
 package com.zhaw.catiejo.whatsforlunch;
 
+import android.content.Intent;
+import android.support.v7.app.ActionBar;
 import android.support.v7.app.AppCompatActivity;
 import android.os.Bundle;
 import android.support.v7.widget.LinearLayoutManager;
 import android.support.v7.widget.RecyclerView;
+import android.view.MenuItem;
+import android.view.View;
 
 import java.text.DateFormat;
 import java.text.SimpleDateFormat;
@@ -23,6 +27,7 @@ public class DayPickerActivity extends AppCompatActivity {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_day_picker);
 
+
         // In activity_main.xml, there's a Recycler View with the id recyclerView.
         // This gets a reference to that.
         mRecyclerView = (RecyclerView) findViewById(R.id.dayRecycler);
@@ -33,28 +38,29 @@ public class DayPickerActivity extends AppCompatActivity {
         mRecyclerView.setLayoutManager(mLayoutManager);
 
         // Set up the adapter...this connects the views (layouts?) to the data (my custom class, MenuCard)
-        mAdapter = new DayCardAdapter(getDayCardList());
+        DayCardAdapter.OnItemClickListener listener = new DayCardAdapter.OnItemClickListener() {
+            @Override
+            public void onItemClick(DayCard card) {
+                Intent intent = new Intent(getApplicationContext(), MainActivity.class);
+                startActivity(intent);
+            }
+        };
+        mAdapter = new DayCardAdapter(getDayCardList(), listener);
         mRecyclerView.setAdapter(mAdapter);
+
+        setUpToolbar();
     }
 
     private List<DayCard> getDayCardList() {
         DateFormat dateFormat = new SimpleDateFormat("dd.MM.yy");
-        Calendar date = Calendar.getInstance();
-        String dayOfYear = dateFormat.format(date.getTime());
-        int weekdayAsInt = date.get(Calendar.DAY_OF_WEEK); // Sunday = 1, Saturday = 7
+        int weekdayAsInt = Calendar.getInstance().get(Calendar.DAY_OF_WEEK); // Sunday = 1, Saturday = 7
         List<DayCard> week = new ArrayList<>();
         for (int i = 2; i < 7; i++) {
-            String weekdayAsString = getWeekday(weekdayAsInt);
-            if (weekdayAsInt == i) {
-                week.add(new DayCard(weekdayAsString, dayOfYear, false, true));
-            } else if (i < weekdayAsInt) {
-                Calendar earlierDay = getXDaysFromNow(weekdayAsInt - i);
-                week.add(new DayCard(weekdayAsString, dateFormat.format(earlierDay.getTime()), true, false));
-            }
-            else {
-                Calendar laterDay = getXDaysFromNow(i - weekdayAsInt);
-                week.add(new DayCard(weekdayAsString, dateFormat.format(laterDay.getTime()), false, false));
-            }
+            String weekdayAsString = getWeekday(i);
+            Calendar weekday = getXDaysFromNow(i - weekdayAsInt);
+            boolean isPast = i < weekdayAsInt;
+            boolean isToday = i == weekdayAsInt;
+            week.add(new DayCard(weekdayAsString, dateFormat.format(weekday.getTime()), isPast, isToday));
         }
         if (weekdayAsInt < 2 || weekdayAsInt > 6) {
             week.get(0).setSelected(true);
@@ -96,4 +102,32 @@ public class DayPickerActivity extends AppCompatActivity {
         }
         return weekday;
     }
+
+    private void setUpToolbar() {
+        ActionBar toolbar = getSupportActionBar();
+        toolbar.setHomeAsUpIndicator(R.drawable.ic_arrow_back_black_24dp);
+        toolbar.setDisplayHomeAsUpEnabled(true);
+        toolbar.setTitle(R.string.dayPicker);
+    }
+
+
+    // https://stackoverflow.com/questions/35810229/how-to-display-and-set-click-event-on-back-arrow-on-toolbar
+    @Override
+    public boolean onOptionsItemSelected(MenuItem item) {
+        switch (item.getItemId()) {
+            case android.R.id.home:
+                // todo: goto back activity from here
+
+                Intent intent = new Intent(this, MainActivity.class);
+//                intent.addFlags(Intent.FLAG_ACTIVITY_CLEAR_TOP | Intent.FLAG_ACTIVITY_NEW_TASK);
+                startActivity(intent);
+                finish();
+                return true;
+
+            default:
+                return super.onOptionsItemSelected(item);
+        }
+    }
+
+
 }
