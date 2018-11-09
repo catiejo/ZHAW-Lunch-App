@@ -41,6 +41,10 @@ public class DayPickerActivity extends AppCompatActivity {
         DayCardAdapter.OnItemClickListener listener = new DayCardAdapter.OnItemClickListener() {
             @Override
             public void onItemClick(DayCard card) {
+                if (card.getIsInPast()) {
+                    // don't allow viewing menus that are already past
+                    return;
+                }
                 Intent intent = new Intent(getApplicationContext(), MainActivity.class);
                 startActivity(intent);
             }
@@ -51,6 +55,7 @@ public class DayPickerActivity extends AppCompatActivity {
         setUpToolbar();
     }
 
+    // TODO: always selects current day, not currently selected day
     private List<DayCard> getDayCardList() {
         DateFormat dateFormat = new SimpleDateFormat("dd.MM.yy");
         int weekdayAsInt = Calendar.getInstance().get(Calendar.DAY_OF_WEEK); // Sunday = 1, Saturday = 7
