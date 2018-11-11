@@ -1,5 +1,7 @@
 package com.zhaw.catiejo.whatsforlunch;
 
+import android.widget.CursorAdapter;
+
 public class MenuCard {
     private int mFoodCounter;
     private int mMenuItem;

@@ -13,18 +13,25 @@ import android.content.Intent;
 
 import java.util.ArrayList;
 import java.util.List;
+import dagger.ObjectGraph;
+
 
 public class MainActivity extends AppCompatActivity implements View.OnClickListener {
     private RecyclerView mRecyclerView;
     private RecyclerView.Adapter mAdapter;
     private RecyclerView.LayoutManager mLayoutManager;
     private FloatingActionButton mFab;
+    private ObjectGraph mGraph;
+    private Mensa mMensa;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         // Boilerplate
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_main);
+
+        mGraph = ObjectGraph.create(new MensaHelper(this));
+        mGraph.inject(this); //the class in CampusInfo implements DaggerContainer and has an override
 
         // In activity_main.xml, there's a Recycler View with the id recyclerView.
         // This gets a reference to that.
@@ -38,7 +45,7 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
         mRecyclerView.setLayoutManager(mLayoutManager);
 
         // Set up the adapter...this connects the views (layouts?) to the data (my custom class, MenuCard)
-        mAdapter = new MenuCardAdapter(getMenuCardList());
+        mAdapter = new MenuCardAdapter(getMenuCardList(), null);
         mRecyclerView.setAdapter(mAdapter);
 
         mFab = (FloatingActionButton) findViewById(R.id.fab);

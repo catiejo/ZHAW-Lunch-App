@@ -1,19 +1,30 @@
 package com.zhaw.catiejo.whatsforlunch;
 
+import android.content.Context;
+import android.database.Cursor;
 import android.support.v7.widget.CardView;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
+import android.widget.CursorAdapter;
 import android.widget.TextView;
 import android.support.v7.widget.RecyclerView;
 
+import com.google.common.base.Joiner;
+import com.google.common.base.Optional;
+import com.google.common.collect.Lists;
+import com.zhaw.catiejo.whatsforlunch.mensadata.dao.DishDao;
+import com.zhaw.catiejo.whatsforlunch.mensadata.helper.Constants;
+
 import org.w3c.dom.Text;
 
+import java.text.NumberFormat;
 import java.util.ArrayList;
 import java.util.List;
 
 public class MenuCardAdapter extends RecyclerView.Adapter<MenuCardAdapter.MenuCardViewHolder> {
     private List<MenuCard> mData;
+    private Cursor mCursor;
 
     // Provide a reference to the views for each data item
     // Complex data items may need more than one view per item, and
@@ -39,7 +50,8 @@ public class MenuCardAdapter extends RecyclerView.Adapter<MenuCardAdapter.MenuCa
     }
 
     // Constructor
-    public MenuCardAdapter(List<MenuCard> cards) {
+    public MenuCardAdapter(List<MenuCard> cards, Cursor cursor) {
+        mCursor = cursor;
         mData = cards;
     }
 
@@ -56,13 +68,24 @@ public class MenuCardAdapter extends RecyclerView.Adapter<MenuCardAdapter.MenuCa
     @Override
     public void onBindViewHolder(MenuCardViewHolder holder, int position) {
         // help provided here: https://www.binpress.com/android-recyclerview-cardview-guide/
-        MenuCard mc = mData.get(position);
-        holder.foodCounter.setText(mc.getFoodCounter());
-        holder.menuItem.setText(mc.getMenuItem());
-        holder.menuDescription.setText(mc.getMenuDescription());
-        holder.studentPrice.setText(mc.getStudentPrice());
-        holder.employeePrice.setText(mc.getEmployeePrice());
-        holder.externalPrice.setText(mc.getExternalPrice());
+//        MenuCard mc = mData.get(position);
+//        holder.foodCounter.setText(mc.getFoodCounter());
+//        holder.menuItem.setText(mc.getMenuItem());
+//        holder.menuDescription.setText(mc.getMenuDescription());
+//        holder.studentPrice.setText(mc.getStudentPrice());
+//        holder.employeePrice.setText(mc.getEmployeePrice());
+//        holder.externalPrice.setText(mc.getExternalPrice());
+
+        DishDao dish = DishDao.fromCursor(mCursor);
+
+        holder.foodCounter.setText(dish.getLabel());
+        holder.menuItem.setText(dish.getName());
+        Iterable<String> sideDishes = Optional.presentInstances(Lists.newArrayList(dish.getFirstSideDish(),
+                dish.getSecondSideDish(), dish.getThirdSideDish()));
+        holder.menuDescription.setText(Joiner.on(" ").join(sideDishes));
+        holder.studentPrice.setText(NumberFormat.getCurrencyInstance(Constants.LOCAL_LOCALE).format(dish.getInternalPrice()));
+        holder.employeePrice.setText(NumberFormat.getCurrencyInstance(Constants.LOCAL_LOCALE).format(dish.getPriceForPartners()));
+        holder.externalPrice.setText(NumberFormat.getCurrencyInstance(Constants.LOCAL_LOCALE).format(dish.getExternalPrice()));
     }
 
     @Override

@@ -22,6 +22,8 @@
             android:resource="@array/preloaded_fonts" />
 
         <activity android:name=".DayPickerActivity" android:screenOrientation="portrait"></activity>
+
+        <provider android:authorities="ch.zhaw.init.android.campusinfo.dataaccess.CateringContentProvider" android:exported="false" android:label="Mensa-Informationen" android:name=".mensadata.CateringContentProvider"/>
     </application>
 
 </manifest>
