@@ -38,7 +38,7 @@ public class MenuDisplayActivity extends AppCompatActivity implements View.OnCli
         ((WhatsForLunchApplication) getApplication()).inject(this);
 
         mMensa = (MensaContainer) getIntent().getSerializableExtra(Constants.MENU_SELECTOR);
-
+        setUpToolbar();
 
         // In activity_main.xml, there's a Recycler View with the id recyclerView.
         // This gets a reference to that.
