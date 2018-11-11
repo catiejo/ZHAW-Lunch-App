@@ -30,8 +30,8 @@ public class MensaPickerActivity extends AppCompatActivity {
     Bus bus;
 
     private MensaCardAdapter mMensaAdapter;
-    private CafeteriaContentObserver cafeteriaContentObserver;
-    private LoadCafeteriasTask loadCafeteriasTask;
+    private CanteenContentObserver canteenContentObserver;
+    private LoadCanteensTask loadCanteensTask;
 
     @Override
     public void onCreate(Bundle state) {
@@ -55,11 +55,11 @@ public class MensaPickerActivity extends AppCompatActivity {
         super.onStart();
         bus.register(this);
 
-        cafeteriaContentObserver = new CafeteriaContentObserver(new Handler(Looper.getMainLooper()));
+        canteenContentObserver = new CanteenContentObserver(new Handler(Looper.getMainLooper()));
         getContentResolver().registerContentObserver(CateringContentProvider.CONTENT_URI,
-                true, cafeteriaContentObserver);
-        loadCafeteriasTask = new LoadCafeteriasTask();
-        loadCafeteriasTask.execute();
+                true, canteenContentObserver);
+        loadCanteensTask = new LoadCanteensTask();
+        loadCanteensTask.execute();
     }
 
     @Override
@@ -67,11 +67,11 @@ public class MensaPickerActivity extends AppCompatActivity {
         super.onStop();
         bus.unregister(this);
 
-        getContentResolver().unregisterContentObserver(cafeteriaContentObserver);
+        getContentResolver().unregisterContentObserver(canteenContentObserver);
 
-        if (loadCafeteriasTask != null && !loadCafeteriasTask.isCancelled()) {
-            loadCafeteriasTask.cancel(true);
-            loadCafeteriasTask = null;
+        if (loadCanteensTask != null && !loadCanteensTask.isCancelled()) {
+            loadCanteensTask.cancel(true);
+            loadCanteensTask = null;
         }
     }
 
@@ -82,7 +82,7 @@ public class MensaPickerActivity extends AppCompatActivity {
         toolbar.setTitle(R.string.mensaPicker);
     }
 
-    private class LoadCafeteriasTask extends AsyncTask<Void, Void, Optional<Cursor>> {
+    private class LoadCanteensTask extends AsyncTask<Void, Void, Optional<Cursor>> {
 
         @Override
         protected void onPreExecute() {
@@ -90,7 +90,7 @@ public class MensaPickerActivity extends AppCompatActivity {
 
         @Override
         protected Optional<Cursor> doInBackground(Void... params) {
-            return Optional.fromNullable(cateringController.getCafeterias(LocalDate.now(Constants.LocalTimeZone)));
+            return Optional.fromNullable(cateringController.getCanteens(LocalDate.now(Constants.LocalTimeZone)));
         }
 
         @Override
@@ -106,9 +106,9 @@ public class MensaPickerActivity extends AppCompatActivity {
         }
     }
 
-    private class CafeteriaContentObserver extends ContentObserver {
+    private class CanteenContentObserver extends ContentObserver {
 
-        public CafeteriaContentObserver(Handler handler) {
+        public CanteenContentObserver(Handler handler) {
             super(handler);
         }
 
@@ -124,8 +124,8 @@ public class MensaPickerActivity extends AppCompatActivity {
 
         @Override
         public void onChange(boolean selfChange, Uri uri) {
-            loadCafeteriasTask = new LoadCafeteriasTask();
-            loadCafeteriasTask.execute();
+            loadCanteensTask = new LoadCanteensTask();
+            loadCanteensTask.execute();
         }
     }
 
