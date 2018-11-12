@@ -13,7 +13,10 @@ import android.support.v7.app.ActionBar;
 import android.support.v7.app.AppCompatActivity;
 import android.os.Bundle;
 import android.support.v7.widget.CardView;
+import android.support.v7.widget.LinearLayoutManager;
+import android.support.v7.widget.PagerSnapHelper;
 import android.support.v7.widget.RecyclerView;
+import android.support.v7.widget.SnapHelper;
 import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.Menu;
@@ -30,6 +33,7 @@ import com.google.common.base.Joiner;
 import com.google.common.base.Optional;
 import com.google.common.collect.Lists;
 import com.squareup.otto.Bus;
+import com.zhaw.catiejo.whatsforlunch.CursorRecyclerAdapter.CursorRecyclerViewAdapter;
 import com.zhaw.catiejo.whatsforlunch.DayPicker.DayPickerActivity;
 import com.zhaw.catiejo.whatsforlunch.MensaContainer;
 import com.zhaw.catiejo.whatsforlunch.MensaPicker.MensaPickerActivity;
@@ -50,12 +54,14 @@ public class MenuDisplayActivity extends AppCompatActivity {
     @Inject
     Bus bus;
 
-    private MenuAdapter mMenuAdapter;
+//    private MenuAdapter mMenuAdapter;
+    private MenuCardAdapter mMenuCardAdapter;
     private MenuContentObserver mMenuContentObserver;
     private LoadMenuTask mLoadMenuTask;
     private MensaContainer mMensa; //The mensa we're currently viewing
     private FloatingActionButton mFab;
     RecyclerView mRecyclerView;
+    private RecyclerView.LayoutManager mLayoutManager;
 
     @Override
     protected void onCreate(Bundle state) {
@@ -64,28 +70,23 @@ public class MenuDisplayActivity extends AppCompatActivity {
         ((WhatsForLunchApplication) getApplication()).inject(this);
 
 
-        this.setContentView(R.layout.activity_menu_display);
-//        this.setContentView(R.layout.activity_main);
+//        this.setContentView(R.layout.activity_menu_display);
+//        mMenuAdapter = new MenuAdapter(this, null, 0);
+//        final ListView list = (ListView) findViewById(R.id.menuList);
+//        list.setAdapter(mMenuAdapter);
 
-        mMenuAdapter = new MenuAdapter(this, null, 0);
-//        mCursorRecyclerAdapter = new CursorRecyclerViewAdapter(this, null) {
-//            @Override
-//            public void onBindViewHolder(RecyclerView.ViewHolder viewHolder, Cursor cursor) {
-//            }
-//
-//            @NonNull
-//            @Override
-//            public RecyclerView.ViewHolder onCreateViewHolder(@NonNull ViewGroup viewGroup, int i) {
-//            }
-//        };
-//        mRecyclerView = (RecyclerView) findViewById(R.id.menuRecycler);
-//        mRecyclerView.setAdapter();
-        final ListView list = (ListView) findViewById(R.id.menuList);
-        list.setAdapter(mMenuAdapter);
+        this.setContentView(R.layout.activity_main);
+        mMenuCardAdapter = new MenuCardAdapter(this, null);
+        mRecyclerView = (RecyclerView) findViewById(R.id.menuRecycler);
+        SnapHelper snapHelper = new PagerSnapHelper();
+        snapHelper.attachToRecyclerView(mRecyclerView);
+        mRecyclerView.setAdapter(mMenuCardAdapter);
+        mLayoutManager = new LinearLayoutManager(this, LinearLayoutManager.HORIZONTAL, false);
+        mRecyclerView.setLayoutManager(mLayoutManager);
 
         mMensa = (MensaContainer) getIntent().getSerializableExtra(Constants.MENU_SELECTOR);
 
-        mFab = (FloatingActionButton) findViewById(R.id.fab2);
+        mFab = (FloatingActionButton) findViewById(R.id.fab);
         mFab.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
@@ -107,8 +108,8 @@ public class MenuDisplayActivity extends AppCompatActivity {
         }
         // Explicitly release the cursor. Otherwise these nasty "cursor not finalized" warnings pop up. Although I must
         // admit I don't know why.
-        if (mMenuAdapter != null) {
-            mMenuAdapter.changeCursor(null);
+        if (mMenuCardAdapter != null) {
+            mMenuCardAdapter.changeCursor(null);
         }
     }
 
@@ -171,7 +172,7 @@ public class MenuDisplayActivity extends AppCompatActivity {
         @Override
         protected void onPostExecute(Optional<Cursor> optionalCursor) {
             Log.e("CJ", "post");
-            if (this.isCancelled() || mMenuAdapter == null) {
+            if (this.isCancelled() || mMenuCardAdapter == null) {
                 return;
             }
             if (optionalCursor.get().moveToFirst()) {
@@ -179,7 +180,7 @@ public class MenuDisplayActivity extends AppCompatActivity {
                 Log.e("CJ", dish.toString());
             }
             Log.e("CJ", DatabaseUtils.dumpCursorToString(optionalCursor.get()));
-            mMenuAdapter.changeCursor(optionalCursor.orNull());
+            mMenuCardAdapter.changeCursor(optionalCursor.orNull());
         }
 
         @Override
