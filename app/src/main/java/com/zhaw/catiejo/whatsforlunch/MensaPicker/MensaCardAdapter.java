@@ -44,8 +44,7 @@ public class MensaCardAdapter extends CursorAdapter {
         view.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
-                //FIXME
-//                Calendar date = new GregorianCalendar(2018, Calendar.NOVEMBER, 13);
+                //FIXME always resets to current day when you pick a mensa
                 final MensaContainer selector = new MensaContainer(LocalDate.now(Constants.LocalTimeZone), facilityId, name);
                 final Intent intent = new Intent(context, MenuDisplayActivity.class);
                 intent.putExtra(Constants.MENU_SELECTOR, selector);

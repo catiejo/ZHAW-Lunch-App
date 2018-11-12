@@ -1,5 +1,6 @@
 package com.zhaw.catiejo.whatsforlunch.MensaPicker;
 
+import android.content.Intent;
 import android.database.ContentObserver;
 import android.database.Cursor;
 import android.net.Uri;
@@ -9,11 +10,14 @@ import android.os.Handler;
 import android.os.Looper;
 import android.support.v7.app.ActionBar;
 import android.support.v7.app.AppCompatActivity;
+import android.view.MenuItem;
 import android.widget.ListView;
 import android.widget.Toolbar;
 
 import com.google.common.base.Optional;
 import com.squareup.otto.Bus;
+import com.zhaw.catiejo.whatsforlunch.MensaContainer;
+import com.zhaw.catiejo.whatsforlunch.MenuDisplay.MenuDisplayActivity;
 import com.zhaw.catiejo.whatsforlunch.R;
 import com.zhaw.catiejo.whatsforlunch.WhatsForLunchApplication;
 import com.zhaw.catiejo.whatsforlunch._campusinfo.CateringContentProvider;
@@ -33,6 +37,7 @@ public class MensaPickerActivity extends AppCompatActivity {
     private MensaCardAdapter mMensaAdapter;
     private CanteenContentObserver canteenContentObserver;
     private LoadCanteensTask loadCanteensTask;
+    private MensaContainer mMensa;
 
     @Override
     public void onCreate(Bundle state) {
@@ -43,6 +48,7 @@ public class MensaPickerActivity extends AppCompatActivity {
         this.setContentView(R.layout.activity_mensa_picker);
 
         mMensaAdapter = new MensaCardAdapter(this, null, 0);
+        mMensa = (MensaContainer) getIntent().getSerializableExtra(Constants.MENU_SELECTOR);
 
         final ListView list = (ListView) findViewById(R.id.mensaList);
         list.setAdapter(mMensaAdapter);
@@ -79,10 +85,29 @@ public class MensaPickerActivity extends AppCompatActivity {
 
     private void setUpToolbar() {
         ActionBar toolbar = getSupportActionBar();
-        toolbar.setHomeAsUpIndicator(R.drawable.ic_arrow_back_white_24dp);
-        toolbar.setDisplayHomeAsUpEnabled(true);
+        if (mMensa != null) {
+            toolbar.setHomeAsUpIndicator(R.drawable.ic_arrow_back_white_24dp);
+            toolbar.setDisplayHomeAsUpEnabled(true);
+        }
         toolbar.setTitle(R.string.mensaPicker);
     }
+
+    // https://stackoverflow.com/questions/35810229/how-to-display-and-set-click-event-on-back-arrow-on-toolbar
+    @Override
+    public boolean onOptionsItemSelected(MenuItem item) {
+        switch (item.getItemId()) {
+            case android.R.id.home:
+                Intent intent = new Intent(this, MenuDisplayActivity.class);
+                intent.putExtra(Constants.MENU_SELECTOR, mMensa);
+                startActivity(intent);
+                finish();
+                return true;
+
+            default:
+                return super.onOptionsItemSelected(item);
+        }
+    }
+
 
     private class LoadCanteensTask extends AsyncTask<Void, Void, Optional<Cursor>> {
 

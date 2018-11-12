@@ -9,11 +9,16 @@ import android.support.v7.widget.LinearLayoutManager;
 import android.support.v7.widget.RecyclerView;
 import android.view.MenuItem;
 
+import com.zhaw.catiejo.whatsforlunch.MensaContainer;
 import com.zhaw.catiejo.whatsforlunch.MenuDisplay.MenuDisplayActivity;
 import com.zhaw.catiejo.whatsforlunch.R;
+import com.zhaw.catiejo.whatsforlunch._campusinfo.helper.Constants;
+
+import org.joda.time.LocalDate;
 
 import java.text.DateFormat;
 import java.text.SimpleDateFormat;
+import java.time.DayOfWeek;
 import java.util.ArrayList;
 import java.util.Calendar;
 import java.util.GregorianCalendar;
@@ -24,10 +29,13 @@ public class DayPickerActivity extends AppCompatActivity {
     private RecyclerView mRecyclerView;
     private RecyclerView.Adapter mAdapter;
     private RecyclerView.LayoutManager mLayoutManager;
+    private MensaContainer mMensa;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
+        mMensa = (MensaContainer) getIntent().getSerializableExtra(Constants.MENU_SELECTOR);
+
         setContentView(R.layout.activity_day_picker);
 
 
@@ -49,27 +57,24 @@ public class DayPickerActivity extends AppCompatActivity {
                     return;
                 }
                 Intent intent = new Intent(getApplicationContext(), MenuDisplayActivity.class);
+                intent.putExtra(Constants.MENU_SELECTOR, new MensaContainer(card.getDate(), mMensa.getFacilityId(), mMensa.getName()));
                 startActivity(intent);
             }
         };
-        mAdapter = new DayCardAdapter(getDayCardList(), listener);
+        mAdapter = new DayCardAdapter(getDayCardList(mMensa.getDay()), listener);
         mRecyclerView.setAdapter(mAdapter);
 
         setUpToolbar();
     }
 
-    // TODO: always selects current day, not currently selected day
-    private List<DayCard> getDayCardList() {
-        DateFormat dateFormat = new SimpleDateFormat("dd.MM.yy");
-        Calendar date = new GregorianCalendar(2018, Calendar.NOVEMBER, 6);
-        int weekdayAsInt = date.get(Calendar.DAY_OF_WEEK); // Sunday = 1, Saturday = 7
+    private List<DayCard> getDayCardList(LocalDate currentDate) {
+        int weekdayAsInt = currentDate.getDayOfWeek(); // Monday = 1, Sunday = 7
         List<DayCard> week = new ArrayList<>();
-        for (int i = 2; i < 7; i++) {
-            String weekdayAsString = getWeekday(i);
-            Calendar weekday = getXDaysFromNow(i - weekdayAsInt);
-            boolean isPast = i < weekdayAsInt;
+        for (int i = 1; i < 6; i++) {
+            LocalDate weekday = getXDaysFrom(currentDate, i - weekdayAsInt);
+            boolean isPast = i < LocalDate.now(Constants.LocalTimeZone).getDayOfWeek();
             boolean isToday = i == weekdayAsInt;
-            week.add(new DayCard(weekdayAsString, dateFormat.format(weekday.getTime()), isPast, isToday));
+            week.add(new DayCard(weekday, isPast, isToday));
         }
         if (weekdayAsInt < 2 || weekdayAsInt > 6) {
             week.get(0).setSelected(true);
@@ -77,39 +82,14 @@ public class DayPickerActivity extends AppCompatActivity {
         return week;
     }
 
-    private Calendar getXDaysFromNow(int x) {
-        // https://stackoverflow.com/questions/912762/get-previous-day
-        Calendar day = Calendar.getInstance();
-        day.add(Calendar.DAY_OF_MONTH, x);
-        return day;
-    }
-
-    private String getWeekday(int day) {
-        String weekday = "";
-        switch(day) {
-            case 1:
-                weekday = "Sunday";
-                break;
-            case 2:
-                weekday = "Monday";
-                break;
-            case 3:
-                weekday = "Tuesday";
-                break;
-            case 4:
-                weekday = "Wednesday";
-                break;
-            case 5:
-                weekday = "Thursday";
-                break;
-            case 6:
-                weekday = "Friday";
-                break;
-            default:
-                weekday = "Saturday";
-                break;
+    private LocalDate getXDaysFrom(LocalDate date, int x) {
+        if (x < 0) {
+            return date.minusDays(Math.abs(x));
+        } else if (x > 0) {
+            return date.plusDays(x);
+        } else {
+            return date;
         }
-        return weekday;
     }
 
     private void setUpToolbar() {
@@ -125,10 +105,8 @@ public class DayPickerActivity extends AppCompatActivity {
     public boolean onOptionsItemSelected(MenuItem item) {
         switch (item.getItemId()) {
             case android.R.id.home:
-                // todo: goto back activity from here
-
                 Intent intent = new Intent(this, MenuDisplayActivity.class);
-//                intent.addFlags(Intent.FLAG_ACTIVITY_CLEAR_TOP | Intent.FLAG_ACTIVITY_NEW_TASK);
+                intent.putExtra(Constants.MENU_SELECTOR, mMensa);
                 startActivity(intent);
                 finish();
                 return true;

@@ -7,20 +7,28 @@ import android.net.Uri;
 import android.os.AsyncTask;
 import android.os.Handler;
 import android.os.Looper;
+import android.support.annotation.NonNull;
 import android.support.design.widget.FloatingActionButton;
 import android.support.v7.app.ActionBar;
 import android.support.v7.app.AppCompatActivity;
 import android.os.Bundle;
+import android.support.v7.widget.CardView;
+import android.support.v7.widget.RecyclerView;
 import android.util.Log;
+import android.view.LayoutInflater;
 import android.view.Menu;
 import android.view.MenuInflater;
 import android.view.MenuItem;
 import android.content.Intent;
 import android.view.View;
+import android.view.ViewGroup;
 import android.widget.ListView;
+import android.widget.TextView;
 import android.widget.Toolbar;
 
+import com.google.common.base.Joiner;
 import com.google.common.base.Optional;
+import com.google.common.collect.Lists;
 import com.squareup.otto.Bus;
 import com.zhaw.catiejo.whatsforlunch.DayPicker.DayPickerActivity;
 import com.zhaw.catiejo.whatsforlunch.MensaContainer;
@@ -31,6 +39,8 @@ import com.zhaw.catiejo.whatsforlunch._campusinfo.CateringContentProvider;
 import com.zhaw.catiejo.whatsforlunch._campusinfo.ICateringController;
 import com.zhaw.catiejo.whatsforlunch._campusinfo.dao.DishDao;
 import com.zhaw.catiejo.whatsforlunch._campusinfo.helper.Constants;
+
+import java.text.NumberFormat;
 
 import javax.inject.Inject;
 
@@ -45,6 +55,7 @@ public class MenuDisplayActivity extends AppCompatActivity {
     private LoadMenuTask mLoadMenuTask;
     private MensaContainer mMensa; //The mensa we're currently viewing
     private FloatingActionButton mFab;
+    RecyclerView mRecyclerView;
 
     @Override
     protected void onCreate(Bundle state) {
@@ -54,8 +65,21 @@ public class MenuDisplayActivity extends AppCompatActivity {
 
 
         this.setContentView(R.layout.activity_menu_display);
+//        this.setContentView(R.layout.activity_main);
 
         mMenuAdapter = new MenuAdapter(this, null, 0);
+//        mCursorRecyclerAdapter = new CursorRecyclerViewAdapter(this, null) {
+//            @Override
+//            public void onBindViewHolder(RecyclerView.ViewHolder viewHolder, Cursor cursor) {
+//            }
+//
+//            @NonNull
+//            @Override
+//            public RecyclerView.ViewHolder onCreateViewHolder(@NonNull ViewGroup viewGroup, int i) {
+//            }
+//        };
+//        mRecyclerView = (RecyclerView) findViewById(R.id.menuRecycler);
+//        mRecyclerView.setAdapter();
         final ListView list = (ListView) findViewById(R.id.menuList);
         list.setAdapter(mMenuAdapter);
 
@@ -108,13 +132,13 @@ public class MenuDisplayActivity extends AppCompatActivity {
 
     @Override
     public boolean onOptionsItemSelected(MenuItem menuItem) {
-        Log.e("CJ", "item clicked!");
         LoadNewActivity(DayPickerActivity.class);
         return true;
     }
 
     private void LoadNewActivity(Class c) {
         Intent intent = new Intent(getApplicationContext(), c);
+        intent.putExtra(Constants.MENU_SELECTOR, mMensa);
         startActivity(intent);
     }
 
@@ -125,8 +149,10 @@ public class MenuDisplayActivity extends AppCompatActivity {
 //        toolbar.setBackgroundDrawable(new ColorDrawable(getResources().getColor(R.color.colorWhite)));
         if (mMensa == null) {
             toolbar.setTitle("NULL");
+            toolbar.setSubtitle("null");
         } else {
             toolbar.setTitle(mMensa.getName());
+            toolbar.setSubtitle(mMensa.getDayOfWeek());
         }
     }
 
