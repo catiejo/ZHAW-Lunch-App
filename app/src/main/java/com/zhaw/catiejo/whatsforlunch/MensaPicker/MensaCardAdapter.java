@@ -15,6 +15,10 @@ import com.zhaw.catiejo.whatsforlunch.R;
 import com.zhaw.catiejo.whatsforlunch._campusinfo.helper.Constants;
 import org.joda.time.LocalDate;
 import org.joda.time.LocalTime;
+import org.joda.time.format.DateTimeFormatter;
+
+import java.util.Calendar;
+import java.util.GregorianCalendar;
 
 public class MensaCardAdapter extends CursorAdapter {
     public MensaCardAdapter(Context context, Cursor c, int flags) {
@@ -40,6 +44,8 @@ public class MensaCardAdapter extends CursorAdapter {
         view.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
+                //FIXME
+//                Calendar date = new GregorianCalendar(2018, Calendar.NOVEMBER, 13);
                 final MensaContainer selector = new MensaContainer(LocalDate.now(Constants.LocalTimeZone), facilityId, name);
                 final Intent intent = new Intent(context, MenuDisplayActivity.class);
                 intent.putExtra(Constants.MENU_SELECTOR, selector);

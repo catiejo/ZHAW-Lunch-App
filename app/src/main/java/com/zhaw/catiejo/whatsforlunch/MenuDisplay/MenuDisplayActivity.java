@@ -1,7 +1,9 @@
 package com.zhaw.catiejo.whatsforlunch.MenuDisplay;
 
+import android.app.Activity;
 import android.database.ContentObserver;
 import android.database.Cursor;
+import android.database.DatabaseUtils;
 import android.net.Uri;
 import android.os.AsyncTask;
 import android.os.Handler;
@@ -14,6 +16,7 @@ import android.support.v7.widget.PagerSnapHelper;
 import android.support.v7.widget.RecyclerView;
 import android.support.v7.widget.SnapHelper;
 import android.support.v7.widget.LinearLayoutManager;
+import android.util.Log;
 import android.view.View;
 import android.content.Intent;
 import android.widget.ListView;
@@ -28,10 +31,12 @@ import com.zhaw.catiejo.whatsforlunch.R;
 import com.zhaw.catiejo.whatsforlunch.WhatsForLunchApplication;
 import com.zhaw.catiejo.whatsforlunch._campusinfo.CateringContentProvider;
 import com.zhaw.catiejo.whatsforlunch._campusinfo.ICateringController;
+import com.zhaw.catiejo.whatsforlunch._campusinfo.dao.DishDao;
 import com.zhaw.catiejo.whatsforlunch._campusinfo.dao.HolidayDao;
 import com.zhaw.catiejo.whatsforlunch._campusinfo.dao.ServiceTimePeriodDao;
 import com.zhaw.catiejo.whatsforlunch._campusinfo.helper.Constants;
 
+import org.joda.time.LocalDate;
 import org.joda.time.LocalTime;
 
 import java.util.ArrayList;
@@ -48,6 +53,7 @@ public class MenuDisplayActivity extends AppCompatActivity {
     private MenuContentObserver mMenuContentObserver;
     private LoadMenuTask mLoadMenuTask;
     private MensaContainer mMensa; //The mensa we're currently viewing
+    private FloatingActionButton mFab;
 
     @Override
     protected void onCreate(Bundle state) {
@@ -55,36 +61,24 @@ public class MenuDisplayActivity extends AppCompatActivity {
 
         ((WhatsForLunchApplication) getApplication()).inject(this);
 
+
         this.setContentView(R.layout.activity_menu_display);
 
         mMenuAdapter = new MenuAdapter(this, null, 0);
         final ListView list = (ListView) findViewById(R.id.menuList);
         list.setAdapter(mMenuAdapter);
 
-        setUpToolbar();
         mMensa = (MensaContainer) getIntent().getSerializableExtra(Constants.MENU_SELECTOR);
+        setUpToolbar();
 
-//        mFab = (FloatingActionButton) findViewById(R.id.fab2);
+        mFab = (FloatingActionButton) findViewById(R.id.fab2);
 //        mFab.setOnClickListener(this);
 
     }
 
     @Override
-    protected void onStart() {
-        super.onStart();
-        bus.register(this);
-
-        mMenuContentObserver = new MenuDisplayActivity.MenuContentObserver(new Handler(Looper.getMainLooper()));
-        getContentResolver().registerContentObserver(CateringContentProvider.CONTENT_URI,
-                true, mMenuContentObserver);
-        mLoadMenuTask = new MenuDisplayActivity.LoadMenuTask();
-        mLoadMenuTask.execute();
-    }
-
-    @Override
-    protected void onStop() {
-        super.onStop();
-        bus.unregister(this);
+    public void onPause() {
+        super.onPause();
 
         getContentResolver().unregisterContentObserver(mMenuContentObserver);
 
@@ -92,13 +86,20 @@ public class MenuDisplayActivity extends AppCompatActivity {
             mLoadMenuTask.cancel(true);
             mLoadMenuTask = null;
         }
+        // Explicitly release the cursor. Otherwise these nasty "cursor not finalized" warnings pop up. Although I must
+        // admit I don't know why.
+        if (mMenuAdapter != null) {
+            mMenuAdapter.changeCursor(null);
+        }
     }
 
-    private void setUpToolbar() {
-        ActionBar toolbar = getSupportActionBar();
-        toolbar.setHomeAsUpIndicator(R.drawable.ic_arrow_back_black_24dp);
-        toolbar.setDisplayHomeAsUpEnabled(true);
-        toolbar.setTitle(mMensa.getName());
+    @Override
+    public void onResume() {
+        super.onResume();
+        mMenuContentObserver = new MenuContentObserver(new Handler(Looper.getMainLooper()));
+        getContentResolver().registerContentObserver(CateringContentProvider.CONTENT_URI,
+                true, mMenuContentObserver);
+        reloadMenu();
     }
 
     private void reloadMenu() {
@@ -106,46 +107,74 @@ public class MenuDisplayActivity extends AppCompatActivity {
         mLoadMenuTask.execute();
     }
 
-    private class LoadMenuTask extends AsyncTask<Void, Void, LoadMenuTaskResult> {
+
+//    @Override
+//    protected void onStart() {
+//        Log.e("CJ", "tart!");
+//        super.onStart();
+//        bus.register(this);
+//
+//        mMenuContentObserver = new MenuDisplayActivity.MenuContentObserver(new Handler(Looper.getMainLooper()));
+//        getContentResolver().registerContentObserver(CateringContentProvider.CONTENT_URI,
+//                true, mMenuContentObserver);
+//        mLoadMenuTask = new MenuDisplayActivity.LoadMenuTask();
+//        mLoadMenuTask.execute();
+//    }
+//
+//
+//    @Override
+//    protected void onStop() {
+//        super.onStop();
+//        bus.unregister(this);
+//
+//        getContentResolver().unregisterContentObserver(mMenuContentObserver);
+//
+//        if (mLoadMenuTask != null && !mLoadMenuTask.isCancelled()) {
+//            mLoadMenuTask.cancel(true);
+//            mLoadMenuTask = null;
+//        }
+//    }
+
+    private void setUpToolbar() {
+        ActionBar toolbar = getSupportActionBar();
+        toolbar.setHomeAsUpIndicator(R.drawable.ic_arrow_back_black_24dp);
+        toolbar.setDisplayHomeAsUpEnabled(true);
+        if (mMensa == null) {
+            toolbar.setTitle("NULL");
+        } else {
+            toolbar.setTitle(mMensa.getName());
+        }
+    }
+
+    private class LoadMenuTask extends AsyncTask<Void, Void, Optional<Cursor>> {
 
         @Override
         protected void onPreExecute() {
         }
 
         @Override
-        protected LoadMenuTaskResult doInBackground(Void... params) {
-            LoadMenuTaskResult result = new LoadMenuTaskResult();
-
-            result.optionalCursor = Optional.fromNullable(mCateringController.getMenu(mMensa.getFacilityId(),
-                    mMensa.getDay()));
-            result.optionalServiceTimePeriodDao = mCateringController.getServiceTimePeriod(mMensa.getFacilityId(),
-                    mMensa.getDay());
-            result.optionalHolidayDao = mCateringController.getHoliday(mMensa.getFacilityId(),
-                    mMensa.getDay());
-
-            return result;
+        protected Optional<Cursor> doInBackground(Void... params) {
+            Log.e("CJ", mMensa.getName());
+            return Optional.fromNullable(mCateringController.getMenu(mMensa.getFacilityId(), mMensa.getDay()));
         }
 
         @Override
-        protected void onPostExecute(LoadMenuTaskResult result) {
-            //use to be getSherlock instead of getApplication
-            if (this.isCancelled() || getApplication() == null || mMenuAdapter == null) {
+        protected void onPostExecute(Optional<Cursor> optionalCursor) {
+            Log.e("CJ", "post");
+            if (this.isCancelled() || mMenuAdapter == null) {
                 return;
             }
-
-//            updateServiceTimeInfo(result.optionalServiceTimePeriodDao, result.optionalHolidayDao);
-            mMenuAdapter.changeCursor(result.optionalCursor.orNull());
+            if (optionalCursor.get().moveToFirst()) {
+                DishDao dish = DishDao.fromCursor(optionalCursor.get());
+                Log.e("CJ", dish.toString());
+            }
+            Log.e("CJ", DatabaseUtils.dumpCursorToString(optionalCursor.get()));
+            mMenuAdapter.changeCursor(optionalCursor.orNull());
         }
 
         @Override
         protected void onCancelled() {
         }
-    }
-
-    private static class LoadMenuTaskResult {
-        public Optional<Cursor> optionalCursor;
-        public Optional<ServiceTimePeriodDao> optionalServiceTimePeriodDao;
-        public Optional<HolidayDao> optionalHolidayDao;
     }
 
     private class MenuContentObserver extends ContentObserver {
@@ -166,7 +195,8 @@ public class MenuDisplayActivity extends AppCompatActivity {
 
         @Override
         public void onChange(boolean selfChange, Uri uri) {
-            reloadMenu();
+            mLoadMenuTask = new LoadMenuTask();
+            mLoadMenuTask.execute();
         }
     }
 }

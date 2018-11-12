@@ -2,6 +2,7 @@ package com.zhaw.catiejo.whatsforlunch.MenuDisplay;
 
 import android.content.Context;
 import android.database.Cursor;
+import android.database.DatabaseUtils;
 import android.support.v4.widget.CursorAdapter;
 import android.util.Log;
 import android.view.LayoutInflater;
@@ -31,6 +32,7 @@ public class MenuAdapter extends CursorAdapter {
 
     @Override
     public void bindView(View view, Context context, Cursor cursor) {
+        Log.e("CJ", DatabaseUtils.dumpCursorToString(cursor));
         Log.e("cj", "BANANANANANAANANA");
 
         DishDao dish = DishDao.fromCursor(cursor);
@@ -56,10 +58,5 @@ public class MenuAdapter extends CursorAdapter {
 
         TextView externalPriceView = (TextView)view.findViewById(R.id.externalPrice);
         externalPriceView.setText(NumberFormat.getCurrencyInstance(Constants.LOCAL_LOCALE).format(dish.getExternalPrice()));
-    }
-
-    @Override
-    public boolean isEnabled(int position) {
-        return false;
     }
 }
