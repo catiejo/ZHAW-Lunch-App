@@ -10,6 +10,7 @@ import android.os.Looper;
 import android.support.v7.app.ActionBar;
 import android.support.v7.app.AppCompatActivity;
 import android.widget.ListView;
+import android.widget.Toolbar;
 
 import com.google.common.base.Optional;
 import com.squareup.otto.Bus;
@@ -75,9 +76,10 @@ public class MensaPickerActivity extends AppCompatActivity {
         }
     }
 
+
     private void setUpToolbar() {
         ActionBar toolbar = getSupportActionBar();
-        toolbar.setHomeAsUpIndicator(R.drawable.ic_arrow_back_black_24dp);
+        toolbar.setHomeAsUpIndicator(R.drawable.ic_arrow_back_white_24dp);
         toolbar.setDisplayHomeAsUpEnabled(true);
         toolbar.setTitle(R.string.mensaPicker);
     }

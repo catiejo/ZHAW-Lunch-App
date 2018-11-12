@@ -12,8 +12,6 @@ import android.view.MenuItem;
 import com.zhaw.catiejo.whatsforlunch.MenuDisplay.MenuDisplayActivity;
 import com.zhaw.catiejo.whatsforlunch.R;
 
-import org.joda.time.LocalDate;
-
 import java.text.DateFormat;
 import java.text.SimpleDateFormat;
 import java.util.ArrayList;
@@ -116,7 +114,7 @@ public class DayPickerActivity extends AppCompatActivity {
 
     private void setUpToolbar() {
         ActionBar toolbar = getSupportActionBar();
-        toolbar.setHomeAsUpIndicator(R.drawable.ic_arrow_back_black_24dp);
+        toolbar.setHomeAsUpIndicator(R.drawable.ic_arrow_back_white_24dp);
         toolbar.setDisplayHomeAsUpEnabled(true);
         toolbar.setTitle(R.string.dayPicker);
     }

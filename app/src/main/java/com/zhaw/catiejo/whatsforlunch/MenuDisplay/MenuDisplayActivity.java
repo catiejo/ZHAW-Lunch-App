@@ -1,6 +1,5 @@
 package com.zhaw.catiejo.whatsforlunch.MenuDisplay;
 
-import android.app.Activity;
 import android.database.ContentObserver;
 import android.database.Cursor;
 import android.database.DatabaseUtils;
@@ -12,19 +11,18 @@ import android.support.design.widget.FloatingActionButton;
 import android.support.v7.app.ActionBar;
 import android.support.v7.app.AppCompatActivity;
 import android.os.Bundle;
-import android.support.v7.widget.PagerSnapHelper;
-import android.support.v7.widget.RecyclerView;
-import android.support.v7.widget.SnapHelper;
-import android.support.v7.widget.LinearLayoutManager;
 import android.util.Log;
-import android.view.View;
+import android.view.Menu;
+import android.view.MenuInflater;
+import android.view.MenuItem;
 import android.content.Intent;
+import android.view.View;
 import android.widget.ListView;
-import android.widget.TextView;
+import android.widget.Toolbar;
 
 import com.google.common.base.Optional;
 import com.squareup.otto.Bus;
-import com.squareup.phrase.Phrase;
+import com.zhaw.catiejo.whatsforlunch.DayPicker.DayPickerActivity;
 import com.zhaw.catiejo.whatsforlunch.MensaContainer;
 import com.zhaw.catiejo.whatsforlunch.MensaPicker.MensaPickerActivity;
 import com.zhaw.catiejo.whatsforlunch.R;
@@ -32,15 +30,8 @@ import com.zhaw.catiejo.whatsforlunch.WhatsForLunchApplication;
 import com.zhaw.catiejo.whatsforlunch._campusinfo.CateringContentProvider;
 import com.zhaw.catiejo.whatsforlunch._campusinfo.ICateringController;
 import com.zhaw.catiejo.whatsforlunch._campusinfo.dao.DishDao;
-import com.zhaw.catiejo.whatsforlunch._campusinfo.dao.HolidayDao;
-import com.zhaw.catiejo.whatsforlunch._campusinfo.dao.ServiceTimePeriodDao;
 import com.zhaw.catiejo.whatsforlunch._campusinfo.helper.Constants;
 
-import org.joda.time.LocalDate;
-import org.joda.time.LocalTime;
-
-import java.util.ArrayList;
-import java.util.List;
 import javax.inject.Inject;
 
 public class MenuDisplayActivity extends AppCompatActivity {
@@ -69,10 +60,14 @@ public class MenuDisplayActivity extends AppCompatActivity {
         list.setAdapter(mMenuAdapter);
 
         mMensa = (MensaContainer) getIntent().getSerializableExtra(Constants.MENU_SELECTOR);
-        setUpToolbar();
 
         mFab = (FloatingActionButton) findViewById(R.id.fab2);
-//        mFab.setOnClickListener(this);
+        mFab.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View view) {
+                LoadNewActivity(MensaPickerActivity.class);
+            }
+        });
 
     }
 
@@ -99,46 +94,35 @@ public class MenuDisplayActivity extends AppCompatActivity {
         mMenuContentObserver = new MenuContentObserver(new Handler(Looper.getMainLooper()));
         getContentResolver().registerContentObserver(CateringContentProvider.CONTENT_URI,
                 true, mMenuContentObserver);
-        reloadMenu();
-    }
-
-    private void reloadMenu() {
         mLoadMenuTask = new LoadMenuTask();
         mLoadMenuTask.execute();
     }
 
+    @Override
+    public boolean onCreateOptionsMenu(Menu menu) {
+        MenuInflater inflater = getMenuInflater();
+        inflater.inflate(R.menu.menu_toolbar, menu);
+        setUpToolbar();
+        return true;
+    }
 
-//    @Override
-//    protected void onStart() {
-//        Log.e("CJ", "tart!");
-//        super.onStart();
-//        bus.register(this);
-//
-//        mMenuContentObserver = new MenuDisplayActivity.MenuContentObserver(new Handler(Looper.getMainLooper()));
-//        getContentResolver().registerContentObserver(CateringContentProvider.CONTENT_URI,
-//                true, mMenuContentObserver);
-//        mLoadMenuTask = new MenuDisplayActivity.LoadMenuTask();
-//        mLoadMenuTask.execute();
-//    }
-//
-//
-//    @Override
-//    protected void onStop() {
-//        super.onStop();
-//        bus.unregister(this);
-//
-//        getContentResolver().unregisterContentObserver(mMenuContentObserver);
-//
-//        if (mLoadMenuTask != null && !mLoadMenuTask.isCancelled()) {
-//            mLoadMenuTask.cancel(true);
-//            mLoadMenuTask = null;
-//        }
-//    }
+    @Override
+    public boolean onOptionsItemSelected(MenuItem menuItem) {
+        Log.e("CJ", "item clicked!");
+        LoadNewActivity(DayPickerActivity.class);
+        return true;
+    }
+
+    private void LoadNewActivity(Class c) {
+        Intent intent = new Intent(getApplicationContext(), c);
+        startActivity(intent);
+    }
 
     private void setUpToolbar() {
         ActionBar toolbar = getSupportActionBar();
-        toolbar.setHomeAsUpIndicator(R.drawable.ic_arrow_back_black_24dp);
-        toolbar.setDisplayHomeAsUpEnabled(true);
+//        toolbar.setHomeAsUpIndicator(R.drawable.ic_arrow_back_black_24dp);
+//        toolbar.setDisplayHomeAsUpEnabled(true);
+//        toolbar.setBackgroundDrawable(new ColorDrawable(getResources().getColor(R.color.colorWhite)));
         if (mMensa == null) {
             toolbar.setTitle("NULL");
         } else {
