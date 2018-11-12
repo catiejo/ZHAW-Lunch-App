@@ -1,6 +1,7 @@
 package com.zhaw.catiejo.whatsforlunch.DayPicker;
 
 import android.content.Intent;
+
 import android.support.v7.app.ActionBar;
 import android.support.v7.app.AppCompatActivity;
 import android.os.Bundle;
@@ -11,10 +12,13 @@ import android.view.MenuItem;
 import com.zhaw.catiejo.whatsforlunch.MenuDisplay.MenuDisplayActivity;
 import com.zhaw.catiejo.whatsforlunch.R;
 
+import org.joda.time.LocalDate;
+
 import java.text.DateFormat;
 import java.text.SimpleDateFormat;
 import java.util.ArrayList;
 import java.util.Calendar;
+import java.util.GregorianCalendar;
 import java.util.List;
 
 
@@ -60,7 +64,8 @@ public class DayPickerActivity extends AppCompatActivity {
     // TODO: always selects current day, not currently selected day
     private List<DayCard> getDayCardList() {
         DateFormat dateFormat = new SimpleDateFormat("dd.MM.yy");
-        int weekdayAsInt = Calendar.getInstance().get(Calendar.DAY_OF_WEEK); // Sunday = 1, Saturday = 7
+        Calendar date = new GregorianCalendar(2018, Calendar.NOVEMBER, 6);
+        int weekdayAsInt = date.get(Calendar.DAY_OF_WEEK); // Sunday = 1, Saturday = 7
         List<DayCard> week = new ArrayList<>();
         for (int i = 2; i < 7; i++) {
             String weekdayAsString = getWeekday(i);

@@ -17,4 +17,6 @@ public class MensaContainer implements Serializable {
     public String getName() {
         return name;
     }
+    public long getFacilityId() { return facilityId; }
+    public LocalDate getDay() { return day; }
 }

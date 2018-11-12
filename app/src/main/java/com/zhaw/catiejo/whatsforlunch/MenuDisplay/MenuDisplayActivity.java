@@ -1,5 +1,11 @@
 package com.zhaw.catiejo.whatsforlunch.MenuDisplay;
 
+import android.database.ContentObserver;
+import android.database.Cursor;
+import android.net.Uri;
+import android.os.AsyncTask;
+import android.os.Handler;
+import android.os.Looper;
 import android.support.design.widget.FloatingActionButton;
 import android.support.v7.app.ActionBar;
 import android.support.v7.app.AppCompatActivity;
@@ -10,76 +16,159 @@ import android.support.v7.widget.SnapHelper;
 import android.support.v7.widget.LinearLayoutManager;
 import android.view.View;
 import android.content.Intent;
+import android.widget.ListView;
+import android.widget.TextView;
+
+import com.google.common.base.Optional;
+import com.squareup.otto.Bus;
+import com.squareup.phrase.Phrase;
 import com.zhaw.catiejo.whatsforlunch.MensaContainer;
 import com.zhaw.catiejo.whatsforlunch.MensaPicker.MensaPickerActivity;
 import com.zhaw.catiejo.whatsforlunch.R;
 import com.zhaw.catiejo.whatsforlunch.WhatsForLunchApplication;
+import com.zhaw.catiejo.whatsforlunch._campusinfo.CateringContentProvider;
 import com.zhaw.catiejo.whatsforlunch._campusinfo.ICateringController;
+import com.zhaw.catiejo.whatsforlunch._campusinfo.dao.HolidayDao;
+import com.zhaw.catiejo.whatsforlunch._campusinfo.dao.ServiceTimePeriodDao;
 import com.zhaw.catiejo.whatsforlunch._campusinfo.helper.Constants;
+
+import org.joda.time.LocalTime;
+
 import java.util.ArrayList;
 import java.util.List;
 import javax.inject.Inject;
 
-public class MenuDisplayActivity extends AppCompatActivity implements View.OnClickListener {
+public class MenuDisplayActivity extends AppCompatActivity {
     @Inject
-    ICateringController cateringController;
+    ICateringController mCateringController;
+    @Inject
+    Bus bus;
 
-    private RecyclerView mRecyclerView;
-    private RecyclerView.Adapter mAdapter;
-    private RecyclerView.LayoutManager mLayoutManager;
-    private FloatingActionButton mFab;
-    private MensaContainer mMensa;
+    private MenuAdapter mMenuAdapter;
+    private MenuContentObserver mMenuContentObserver;
+    private LoadMenuTask mLoadMenuTask;
+    private MensaContainer mMensa; //The mensa we're currently viewing
 
     @Override
-    protected void onCreate(Bundle savedInstanceState) {
-        // Boilerplate
-        super.onCreate(savedInstanceState);
-        setContentView(R.layout.activity_main);
+    protected void onCreate(Bundle state) {
+        super.onCreate(state);
+
         ((WhatsForLunchApplication) getApplication()).inject(this);
 
-        mMensa = (MensaContainer) getIntent().getSerializableExtra(Constants.MENU_SELECTOR);
+        this.setContentView(R.layout.activity_menu_display);
+
+        mMenuAdapter = new MenuAdapter(this, null, 0);
+        final ListView list = (ListView) findViewById(R.id.menuList);
+        list.setAdapter(mMenuAdapter);
+
         setUpToolbar();
+        mMensa = (MensaContainer) getIntent().getSerializableExtra(Constants.MENU_SELECTOR);
 
-        // In activity_main.xml, there's a Recycler View with the id recyclerView.
-        // This gets a reference to that.
-        mRecyclerView = (RecyclerView) findViewById(R.id.menuRecycler);
-        SnapHelper snapHelper = new PagerSnapHelper();
-        snapHelper.attachToRecyclerView(mRecyclerView);
-
-        // Horizontally scrolling layout manager
-        // Influenced from https://goo.gl/B9CsiA and https://goo.gl/fQbj5E
-        mLayoutManager = new LinearLayoutManager(this, LinearLayoutManager.HORIZONTAL, false);
-        mRecyclerView.setLayoutManager(mLayoutManager);
-
-        // Set up the adapter...this connects the views (layouts?) to the data (my custom class, MenuCard)
-        mAdapter = new MenuCardAdapter(getMenuCardList(), null);
-        mRecyclerView.setAdapter(mAdapter);
-
-        mFab = (FloatingActionButton) findViewById(R.id.fab);
-        mFab.setOnClickListener(this);
+//        mFab = (FloatingActionButton) findViewById(R.id.fab2);
+//        mFab.setOnClickListener(this);
 
     }
-    private List<MenuCard> getMenuCardList() {
-        List<MenuCard> cards = new ArrayList<>();
-        cards.add(new MenuCard(R.string.foodCounter_1, R.string.menuItem_1, R.string.filler, R.string.studentPrice, R.string.employeePrice, R.string.externalPrice));
-        cards.add(new MenuCard(R.string.foodCounter_2, R.string.menuItem_2, R.string.filler, R.string.studentPrice, R.string.employeePrice, R.string.externalPrice));
-        cards.add(new MenuCard(R.string.foodCounter_3, R.string.menuItem_3, R.string.filler, R.string.studentPrice, R.string.employeePrice, R.string.externalPrice));
-        cards.add(new MenuCard(R.string.foodCounter_4, R.string.menuItem_4, R.string.filler, R.string.studentPrice, R.string.employeePrice, R.string.externalPrice));
-        cards.add(new MenuCard(R.string.foodCounter_5, R.string.menuItem_5, R.string.filler, R.string.studentPrice, R.string.employeePrice, R.string.externalPrice));
-        return cards;
-    }
 
-    // implements View.OnClickListener so that this can be overridden
-    // idea from ViewPagerCards-master and developer.android.com/training/basics/firstapp/starting-activity
     @Override
-    public void onClick(View view) {
-        Intent intent = new Intent(this, MensaPickerActivity.class);
-        startActivity(intent);
+    protected void onStart() {
+        super.onStart();
+        bus.register(this);
+
+        mMenuContentObserver = new MenuDisplayActivity.MenuContentObserver(new Handler(Looper.getMainLooper()));
+        getContentResolver().registerContentObserver(CateringContentProvider.CONTENT_URI,
+                true, mMenuContentObserver);
+        mLoadMenuTask = new MenuDisplayActivity.LoadMenuTask();
+        mLoadMenuTask.execute();
+    }
+
+    @Override
+    protected void onStop() {
+        super.onStop();
+        bus.unregister(this);
+
+        getContentResolver().unregisterContentObserver(mMenuContentObserver);
+
+        if (mLoadMenuTask != null && !mLoadMenuTask.isCancelled()) {
+            mLoadMenuTask.cancel(true);
+            mLoadMenuTask = null;
+        }
     }
 
     private void setUpToolbar() {
         ActionBar toolbar = getSupportActionBar();
+        toolbar.setHomeAsUpIndicator(R.drawable.ic_arrow_back_black_24dp);
+        toolbar.setDisplayHomeAsUpEnabled(true);
         toolbar.setTitle(mMensa.getName());
     }
 
+    private void reloadMenu() {
+        mLoadMenuTask = new LoadMenuTask();
+        mLoadMenuTask.execute();
+    }
+
+    private class LoadMenuTask extends AsyncTask<Void, Void, LoadMenuTaskResult> {
+
+        @Override
+        protected void onPreExecute() {
+        }
+
+        @Override
+        protected LoadMenuTaskResult doInBackground(Void... params) {
+            LoadMenuTaskResult result = new LoadMenuTaskResult();
+
+            result.optionalCursor = Optional.fromNullable(mCateringController.getMenu(mMensa.getFacilityId(),
+                    mMensa.getDay()));
+            result.optionalServiceTimePeriodDao = mCateringController.getServiceTimePeriod(mMensa.getFacilityId(),
+                    mMensa.getDay());
+            result.optionalHolidayDao = mCateringController.getHoliday(mMensa.getFacilityId(),
+                    mMensa.getDay());
+
+            return result;
+        }
+
+        @Override
+        protected void onPostExecute(LoadMenuTaskResult result) {
+            //use to be getSherlock instead of getApplication
+            if (this.isCancelled() || getApplication() == null || mMenuAdapter == null) {
+                return;
+            }
+
+//            updateServiceTimeInfo(result.optionalServiceTimePeriodDao, result.optionalHolidayDao);
+            mMenuAdapter.changeCursor(result.optionalCursor.orNull());
+        }
+
+        @Override
+        protected void onCancelled() {
+        }
+    }
+
+    private static class LoadMenuTaskResult {
+        public Optional<Cursor> optionalCursor;
+        public Optional<ServiceTimePeriodDao> optionalServiceTimePeriodDao;
+        public Optional<HolidayDao> optionalHolidayDao;
+    }
+
+    private class MenuContentObserver extends ContentObserver {
+
+        public MenuContentObserver(Handler handler) {
+            super(handler);
+        }
+
+        @Override
+        public boolean deliverSelfNotifications() {
+            return true;
+        }
+
+        @Override
+        public void onChange(boolean selfChange) {
+            onChange(selfChange, null);
+        }
+
+        @Override
+        public void onChange(boolean selfChange, Uri uri) {
+            reloadMenu();
+        }
+    }
 }
+
+
