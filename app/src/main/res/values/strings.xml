@@ -2,22 +2,9 @@
     <string name="app_name">What\'s For Lunch</string>
     <string name="dayPicker">Choose a Day</string>
     <string name="mensaPicker">Choose a Mensa</string>
-    <string name="curMensaText">Technikum</string>
+    <string name="fabText">Change Mensa</string>
     <string name="openingHours">Lunch: 11:30 - 13:30\nHours: 10:00 - 17:00</string>
     <string name="filler">Lorem ipsum dolor sit amet, consectetur adipiscing elit.  Etiam eget ligula eu lectus lobortis condimentum.</string>
-    <string name="foodCounter_1">Kitchen</string>
-    <string name="foodCounter_2">Favorite</string>
-    <string name="foodCounter_3">Green</string>
-    <string name="foodCounter_4">Market</string>
-    <string name="foodCounter_5">Garden</string>
-    <string name="menuItem_1">Rindsstroganoff</string>
-    <string name="menuItem_2">Gelbes Linsen Curry</string>
-    <string name="menuItem_3">Eieromelette</string>
-    <string name="menuItem_4">Street Food</string>
-    <string name="menuItem_5">Salatbuffet</string>
-    <string name="studentPrice">CHF 7.00</string>
-    <string name="employeePrice">CHF 8.00</string>
-    <string name="externalPrice">CHF 14.00</string>
     <string name="endpoint_catering">https://api.apps.engineering.zhaw.ch</string>
 </resources>
 

@@ -79,7 +79,7 @@ public class DayPickerActivity extends AppCompatActivity {
 
     private void setUpToolbar() {
         ActionBar toolbar = getSupportActionBar();
-        toolbar.setHomeAsUpIndicator(R.drawable.ic_arrow_back_white_24dp);
+        toolbar.setHomeAsUpIndicator(R.drawable.ic_clear_white_24dp);
         toolbar.setDisplayHomeAsUpEnabled(true);
         toolbar.setTitle(R.string.dayPicker);
     }

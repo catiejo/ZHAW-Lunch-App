@@ -2,8 +2,6 @@ package com.zhaw.catiejo.whatsforlunch;
 
 import android.app.Application;
 import android.content.Context;
-import android.view.Menu;
-
 import com.squareup.okhttp.HttpResponseCache;
 import com.squareup.otto.Bus;
 import com.squareup.otto.ThreadEnforcer;
@@ -19,17 +17,15 @@ import com.zhaw.catiejo.whatsforlunch._campusinfo.helper.retrofit.DefaultRetrofi
 import com.zhaw.catiejo.whatsforlunch._campusinfo.helper.retrofit.IRetrofitProxyFactory;
 import com.zhaw.catiejo.whatsforlunch._campusinfo.sync.CateringInformationAvailabilityManager;
 import com.zhaw.catiejo.whatsforlunch._campusinfo.sync.ICateringInformationAvailabilityManager;
-
 import java.io.File;
 import java.io.IOException;
 import java.net.ResponseCache;
-
 import javax.inject.Singleton;
-
 import dagger.Module;
 import dagger.ObjectGraph;
 import dagger.Provides;
 
+// Taken from the CampusInfo app and adapted to suit my use case.
 public class WhatsForLunchApplication extends Application implements DaggerContainer {
     private ObjectGraph mGraph;
 

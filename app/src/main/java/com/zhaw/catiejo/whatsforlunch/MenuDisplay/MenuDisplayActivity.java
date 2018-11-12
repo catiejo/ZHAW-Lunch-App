@@ -7,7 +7,6 @@ import android.net.Uri;
 import android.os.AsyncTask;
 import android.os.Handler;
 import android.os.Looper;
-import android.support.design.widget.FloatingActionButton;
 import android.support.v7.app.ActionBar;
 import android.support.v7.app.AppCompatActivity;
 import android.os.Bundle;
@@ -21,6 +20,7 @@ import android.view.MenuInflater;
 import android.view.MenuItem;
 import android.content.Intent;
 import android.view.View;
+import android.widget.Button;
 import com.google.common.base.Optional;
 import com.squareup.otto.Bus;
 import com.zhaw.catiejo.whatsforlunch.DayPicker.DayPickerActivity;
@@ -43,7 +43,7 @@ public class MenuDisplayActivity extends AppCompatActivity {
     private MenuContentObserver mMenuContentObserver;
     private LoadMenuTask mLoadMenuTask;
     private MensaContainer mMensa; //The mensa we're currently viewing
-    private FloatingActionButton mFab;
+    private Button mExtendedFab;
 
     /* RecyclerView Variables */
     RecyclerView mRecyclerView;
@@ -74,14 +74,13 @@ public class MenuDisplayActivity extends AppCompatActivity {
         mRecyclerView.setLayoutManager(mLayoutManager);
 
         // Button to choose a new mensa
-        mFab = (FloatingActionButton) findViewById(R.id.fab);
-        mFab.setOnClickListener(new View.OnClickListener() {
+        mExtendedFab = (Button) findViewById(R.id.fab);
+        mExtendedFab.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
                 LoadNewActivity(MensaPickerActivity.class);
             }
         });
-
     }
 
     // Adapted from CampusInfo app to handle syncing the menu data
@@ -123,10 +122,10 @@ public class MenuDisplayActivity extends AppCompatActivity {
         if (mMensa == null) {
             Log.d("MenuDisplay", "The mensa is null");
             toolbar.setTitle("NULL");
-            toolbar.setSubtitle("null");
+//            toolbar.setSubtitle("null");
         } else {
-            toolbar.setTitle(mMensa.getName());
-            toolbar.setSubtitle(mMensa.getDayOfWeek());
+            toolbar.setTitle(mMensa.getName() + " (" + mMensa.getDayOfWeek() + ")");
+//            toolbar.setSubtitle(mMensa.getDayOfWeek());
         }
         return true;
     }

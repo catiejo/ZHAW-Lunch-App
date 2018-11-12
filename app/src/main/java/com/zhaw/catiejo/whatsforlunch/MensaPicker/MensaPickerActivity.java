@@ -103,7 +103,7 @@ public class MensaPickerActivity extends AppCompatActivity {
         if (mMensa != null) {
             // This activity is the default activity. Only display the back
             // button if the user is coming from another activity.
-            toolbar.setHomeAsUpIndicator(R.drawable.ic_arrow_back_white_24dp);
+            toolbar.setHomeAsUpIndicator(R.drawable.ic_clear_white_24dp);
             toolbar.setDisplayHomeAsUpEnabled(true);
         }
         toolbar.setTitle(R.string.mensaPicker);
