@@ -9,19 +9,16 @@ import android.view.View;
 import android.view.ViewGroup;
 import android.widget.ImageView;
 import android.widget.TextView;
-
 import com.zhaw.catiejo.whatsforlunch.R;
-
 import java.util.List;
 
 // Click listener code taken from: https://antonioleiva.com/recyclerview-listener/
-
-public class DayCardAdapter extends RecyclerView.Adapter<DayCardAdapter.DayCardViewHolder> {
-    private List<DayCard> mData;
+public class DayPickerAdapter extends RecyclerView.Adapter<DayPickerAdapter.DayCardViewHolder> {
+    private List<DayPickerCard> mData;
     private OnItemClickListener mListener;
 
     public interface OnItemClickListener {
-        void onItemClick(DayCard card);
+        void onItemClick(DayPickerCard card);
     }
 
     public static class DayCardViewHolder extends RecyclerView.ViewHolder {
@@ -30,14 +27,13 @@ public class DayCardAdapter extends RecyclerView.Adapter<DayCardAdapter.DayCardV
         protected ImageView checkMark;
 
         public DayCardViewHolder(CardView dc) {
-
             super(dc);
-            dayOfWeek = (TextView) dc.findViewById(R.id.dayOfWeek);
-            dayOfYear = (TextView) dc.findViewById(R.id.dayOfYear);
+            dayOfWeek = (TextView) dc.findViewById(R.id.mainText);
+            dayOfYear = (TextView) dc.findViewById(R.id.supplementaryText);
             checkMark = (ImageView) dc.findViewById(R.id.checkMark);
         }
 
-        public void bind(final DayCard card, final OnItemClickListener listener) {
+        public void bind(final DayPickerCard card, final OnItemClickListener listener) {
             itemView.setOnClickListener(new View.OnClickListener() {
                 @Override public void onClick(View v) {
                     listener.onItemClick(card);
@@ -47,25 +43,25 @@ public class DayCardAdapter extends RecyclerView.Adapter<DayCardAdapter.DayCardV
         }
     }
 
-    public DayCardAdapter(List<DayCard> cards, OnItemClickListener listener) {
+    public DayPickerAdapter(List<DayPickerCard> cards, OnItemClickListener listener) {
         mData = cards;
         mListener = listener;
     }
 
     @Override
-    public DayCardAdapter.DayCardViewHolder onCreateViewHolder(ViewGroup parent, int viewType) {
+    public DayPickerAdapter.DayCardViewHolder onCreateViewHolder(ViewGroup parent, int viewType) {
         CardView c = (CardView) LayoutInflater.from(parent.getContext())
-                .inflate(R.layout.card_day, parent, false);
+                .inflate(R.layout.card_picker, parent, false);
         DayCardViewHolder vh = new DayCardViewHolder(c);
         return vh;
     }
 
     @Override
-    public void onBindViewHolder(DayCardAdapter.DayCardViewHolder holder, int position) {
-        DayCard dc = mData.get(position);
+    public void onBindViewHolder(DayPickerAdapter.DayCardViewHolder holder, int position) {
+        DayPickerCard dc = mData.get(position);
         holder.dayOfWeek.setText(dc.getDayOfWeek());
         holder.dayOfYear.setText(dc.getDayOfYear());
-        holder.bind(dc, mListener);
+        holder.bind(dc, mListener); // bind the card to the listener
         if (dc.getIsInPast()) {
             holder.dayOfWeek.setPaintFlags(holder.dayOfWeek.getPaintFlags() | Paint.STRIKE_THRU_TEXT_FLAG);
             holder.dayOfWeek.setTextColor(Color.parseColor("#9B9B9B"));

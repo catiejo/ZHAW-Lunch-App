@@ -7,7 +7,7 @@
     tools:context=".MenuDisplay.MenuDisplayActivity">
 
     <TextView
-        android:id="@+id/openingHours2"
+        android:id="@+id/openingHours"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         android:layout_marginStart="18dp"
@@ -19,23 +19,23 @@
         app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintTop_toTopOf="parent" />
 
-    <ListView
-        android:id="@+id/menuList"
+    <android.support.v7.widget.RecyclerView
+        android:id="@+id/menuRecycler"
         android:layout_width="match_parent"
         android:layout_height="match_parent"
         android:layout_marginStart="8dp"
+        android:layout_marginLeft="8dp"
         android:layout_marginEnd="8dp"
-        android:layout_marginBottom="8dp"
-        android:footerDividersEnabled="false"
-        android:headerDividersEnabled="false"
+        android:layout_marginRight="8dp"
+        android:layout_marginBottom="140dp"
+        android:layout_marginTop="130dp"
         android:scrollbars="none"
         app:layout_constraintBottom_toBottomOf="parent"
         app:layout_constraintEnd_toEndOf="parent"
-        app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintTop_toTopOf="parent" />
+        app:layout_constraintStart_toStartOf="parent" />
 
     <android.support.design.widget.FloatingActionButton
-        android:id="@+id/fab2"
+        android:id="@+id/fab"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         android:layout_marginStart="18dp"
@@ -43,7 +43,7 @@
         android:layout_marginEnd="18dp"
         android:layout_marginRight="18dp"
         android:layout_marginBottom="50dp"
-        android:src="@drawable/ic_restaurant_menu_black_24dp"
+        android:src="@drawable/ic_restaurant_menu_white_24dp"
         app:layout_constraintBottom_toBottomOf="parent"
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintStart_toStartOf="parent" />

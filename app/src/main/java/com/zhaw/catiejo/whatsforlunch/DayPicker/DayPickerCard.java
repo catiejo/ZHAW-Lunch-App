@@ -6,7 +6,7 @@ import org.joda.time.LocalDate;
 import org.joda.time.format.DateTimeFormat;
 import org.joda.time.format.DateTimeFormatter;
 
-public class DayCard {
+public class DayPickerCard {
     private String mDayOfWeek;
     private String mDayOfYear;
     private boolean mIsInPast;
@@ -19,7 +19,7 @@ public class DayCard {
     public boolean getIsSelected() { return mIsSelected; }
     public LocalDate getDate() { return mDate; }
 
-    public DayCard(LocalDate date, boolean isInPast, boolean isSelected) {
+    public DayPickerCard(LocalDate date, boolean isInPast, boolean isSelected) {
         DateTimeFormatter pattern = DateTimeFormat.forPattern("MM/dd/yyyy");
         mDate = date;
         mDayOfWeek = MensaContainer.getWeekday(date);

@@ -16,46 +16,43 @@ import com.zhaw.catiejo.whatsforlunch._campusinfo.dao.DishDao;
 import com.zhaw.catiejo.whatsforlunch._campusinfo.helper.Constants;
 import java.text.NumberFormat;
 
-/**
- * Created by skyfishjy on 10/31/14.
- */
-public class MenuCardAdapter extends CursorRecyclerViewAdapter<MenuCardAdapter.MenuCardViewHolder> {
+public class MenuDisplayAdapter extends CursorRecyclerViewAdapter<MenuDisplayAdapter.MenuDisplayViewHolder> {
 
-    public MenuCardAdapter(Context context, Cursor cursor){
+    public MenuDisplayAdapter(Context context, Cursor cursor){
         super(context,cursor);
     }
 
-    public static class MenuCardViewHolder extends RecyclerView.ViewHolder {
-        // each data item is just a string in this case
+    public static class MenuDisplayViewHolder extends RecyclerView.ViewHolder {
         protected TextView foodCounter;
         protected TextView menuItem;
         protected TextView menuDescription;
         protected TextView studentPrice;
         protected TextView employeePrice;
         protected TextView externalPrice;
-        public MenuCardViewHolder(CardView mc) {
-            super(mc);
-            foodCounter = (TextView) mc.findViewById(R.id.foodCounter);
-            menuItem = (TextView) mc.findViewById(R.id.menuItem);
-            menuDescription = (TextView) mc.findViewById(R.id.menuDescription);
-            studentPrice = (TextView) mc.findViewById(R.id.studentPrice);
-            employeePrice = (TextView) mc.findViewById(R.id.employeePrice);
-            externalPrice = (TextView) mc.findViewById(R.id.externalPrice);
+
+        public MenuDisplayViewHolder(CardView cv) {
+            super(cv);
+            foodCounter = (TextView) cv.findViewById(R.id.foodCounter);
+            menuItem = (TextView) cv.findViewById(R.id.menuItem);
+            menuDescription = (TextView) cv.findViewById(R.id.menuDescription);
+            studentPrice = (TextView) cv.findViewById(R.id.studentPrice);
+            employeePrice = (TextView) cv.findViewById(R.id.employeePrice);
+            externalPrice = (TextView) cv.findViewById(R.id.externalPrice);
         }
     }
 
     @Override
-    public MenuCardAdapter.MenuCardViewHolder onCreateViewHolder(ViewGroup parent, int viewType) {
-        CardView c = (CardView) LayoutInflater.from(parent.getContext())
+    public MenuDisplayViewHolder onCreateViewHolder(ViewGroup parent, int viewType) {
+        CardView cv = (CardView) LayoutInflater.from(parent.getContext())
                 .inflate(R.layout.card_menu, parent, false);
-        MenuCardViewHolder vh = new MenuCardViewHolder(c);
+        MenuDisplayViewHolder vh = new MenuDisplayViewHolder(cv);
         return vh;
 
     }
 
     @Override
-    public void onBindViewHolder(MenuCardViewHolder holder, Cursor cursor) {
-        DishDao dish = DishDao.fromCursor(cursor);
+    public void onBindViewHolder(MenuDisplayAdapter.MenuDisplayViewHolder holder, Cursor cursor) {
+        DishDao dish = DishDao.fromCursor(cursor); //Class from _campusinfo library
         holder.foodCounter.setText(dish.getLabel());
         holder.menuItem.setText(dish.getName());
         Iterable<String> sideDishes = Optional.presentInstances(Lists.newArrayList(dish.getFirstSideDish(),

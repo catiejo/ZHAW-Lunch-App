@@ -10,6 +10,10 @@ import android.os.Handler;
 import android.os.Looper;
 import android.support.v7.app.ActionBar;
 import android.support.v7.app.AppCompatActivity;
+import android.support.v7.widget.LinearLayoutManager;
+import android.support.v7.widget.PagerSnapHelper;
+import android.support.v7.widget.RecyclerView;
+import android.support.v7.widget.SnapHelper;
 import android.view.MenuItem;
 import android.widget.ListView;
 import android.widget.Toolbar;
@@ -29,34 +33,44 @@ import org.joda.time.LocalDate;
 import javax.inject.Inject;
 
 public class MensaPickerActivity extends AppCompatActivity {
+    // Injections required for syncing with server
     @Inject
     ICateringController cateringController;
     @Inject
     Bus bus;
 
-    private MensaCardAdapter mMensaAdapter;
     private CanteenContentObserver canteenContentObserver;
     private LoadCanteensTask loadCanteensTask;
+    // The mensa from the previous task. Needed in case user hits cancel button in toolbar
     private MensaContainer mMensa;
+
+    /* RecyclerView Variables */
+    RecyclerView mRecyclerView;
+    private RecyclerView.LayoutManager mLayoutManager;
+    private MensaPickerAdapter mMensaPickerAdapter;
+
 
     @Override
     public void onCreate(Bundle state) {
         super.onCreate(state);
 
+        // Required to access the catering servers
         ((WhatsForLunchApplication) getApplication()).inject(this);
 
         this.setContentView(R.layout.activity_mensa_picker);
-
-        mMensaAdapter = new MensaCardAdapter(this, null, 0);
         mMensa = (MensaContainer) getIntent().getSerializableExtra(Constants.MENU_SELECTOR);
 
-        final ListView list = (ListView) findViewById(R.id.mensaList);
-        list.setAdapter(mMensaAdapter);
+        // Set up RecyclerView
+        mRecyclerView = (RecyclerView) findViewById(R.id.mensaRecycler);
+        mLayoutManager = new LinearLayoutManager(this);
+        mRecyclerView.setLayoutManager(mLayoutManager);
+        mMensaPickerAdapter = new MensaPickerAdapter(this, null);
+        mRecyclerView.setAdapter(mMensaPickerAdapter);
 
         setUpToolbar();
-
     }
 
+    // Adapted from CampusInfo app to handle fetching the mensas
     @Override
     protected void onStart() {
         super.onStart();
@@ -69,6 +83,7 @@ public class MensaPickerActivity extends AppCompatActivity {
         loadCanteensTask.execute();
     }
 
+    // Adapted from CampusInfo app to handle fetching the mensas
     @Override
     protected void onStop() {
         super.onStop();
@@ -86,13 +101,15 @@ public class MensaPickerActivity extends AppCompatActivity {
     private void setUpToolbar() {
         ActionBar toolbar = getSupportActionBar();
         if (mMensa != null) {
+            // This activity is the default activity. Only display the back
+            // button if the user is coming from another activity.
             toolbar.setHomeAsUpIndicator(R.drawable.ic_arrow_back_white_24dp);
             toolbar.setDisplayHomeAsUpEnabled(true);
         }
         toolbar.setTitle(R.string.mensaPicker);
     }
 
-    // https://stackoverflow.com/questions/35810229/how-to-display-and-set-click-event-on-back-arrow-on-toolbar
+    // credit: https://stackoverflow.com/questions/35810229/how-to-display-and-set-click-event-on-back-arrow-on-toolbar
     @Override
     public boolean onOptionsItemSelected(MenuItem item) {
         switch (item.getItemId()) {
@@ -108,13 +125,8 @@ public class MensaPickerActivity extends AppCompatActivity {
         }
     }
 
-
+    // Adapted from CampusInfo app to handle fetching the mensas
     private class LoadCanteensTask extends AsyncTask<Void, Void, Optional<Cursor>> {
-
-        @Override
-        protected void onPreExecute() {
-        }
-
         @Override
         protected Optional<Cursor> doInBackground(Void... params) {
             return Optional.fromNullable(cateringController.getCanteens(LocalDate.now(Constants.LocalTimeZone)));
@@ -122,17 +134,14 @@ public class MensaPickerActivity extends AppCompatActivity {
 
         @Override
         protected void onPostExecute(Optional<Cursor> optionalCursor) {
-            if (this.isCancelled() || mMensaAdapter == null) {
+            if (this.isCancelled() || mMensaPickerAdapter == null) {
                 return;
             }
-            mMensaAdapter.swapCursor(optionalCursor.orNull());
-        }
-
-        @Override
-        protected void onCancelled() {
+            mMensaPickerAdapter.swapCursor(optionalCursor.orNull());
         }
     }
 
+    // Adapted from CampusInfo app to handle fetching the mensas
     private class CanteenContentObserver extends ContentObserver {
 
         public CanteenContentObserver(Handler handler) {
@@ -155,6 +164,4 @@ public class MensaPickerActivity extends AppCompatActivity {
             loadCanteensTask.execute();
         }
     }
-
-
 }

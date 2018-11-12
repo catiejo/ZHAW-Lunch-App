@@ -7,33 +7,22 @@ import android.net.Uri;
 import android.os.AsyncTask;
 import android.os.Handler;
 import android.os.Looper;
-import android.support.annotation.NonNull;
 import android.support.design.widget.FloatingActionButton;
 import android.support.v7.app.ActionBar;
 import android.support.v7.app.AppCompatActivity;
 import android.os.Bundle;
-import android.support.v7.widget.CardView;
 import android.support.v7.widget.LinearLayoutManager;
 import android.support.v7.widget.PagerSnapHelper;
 import android.support.v7.widget.RecyclerView;
 import android.support.v7.widget.SnapHelper;
 import android.util.Log;
-import android.view.LayoutInflater;
 import android.view.Menu;
 import android.view.MenuInflater;
 import android.view.MenuItem;
 import android.content.Intent;
 import android.view.View;
-import android.view.ViewGroup;
-import android.widget.ListView;
-import android.widget.TextView;
-import android.widget.Toolbar;
-
-import com.google.common.base.Joiner;
 import com.google.common.base.Optional;
-import com.google.common.collect.Lists;
 import com.squareup.otto.Bus;
-import com.zhaw.catiejo.whatsforlunch.CursorRecyclerAdapter.CursorRecyclerViewAdapter;
 import com.zhaw.catiejo.whatsforlunch.DayPicker.DayPickerActivity;
 import com.zhaw.catiejo.whatsforlunch.MensaContainer;
 import com.zhaw.catiejo.whatsforlunch.MensaPicker.MensaPickerActivity;
@@ -41,51 +30,50 @@ import com.zhaw.catiejo.whatsforlunch.R;
 import com.zhaw.catiejo.whatsforlunch.WhatsForLunchApplication;
 import com.zhaw.catiejo.whatsforlunch._campusinfo.CateringContentProvider;
 import com.zhaw.catiejo.whatsforlunch._campusinfo.ICateringController;
-import com.zhaw.catiejo.whatsforlunch._campusinfo.dao.DishDao;
 import com.zhaw.catiejo.whatsforlunch._campusinfo.helper.Constants;
-
-import java.text.NumberFormat;
-
 import javax.inject.Inject;
 
 public class MenuDisplayActivity extends AppCompatActivity {
+    // Injections required for syncing with server
     @Inject
     ICateringController mCateringController;
     @Inject
     Bus bus;
 
-//    private MenuAdapter mMenuAdapter;
-    private MenuCardAdapter mMenuCardAdapter;
     private MenuContentObserver mMenuContentObserver;
     private LoadMenuTask mLoadMenuTask;
     private MensaContainer mMensa; //The mensa we're currently viewing
     private FloatingActionButton mFab;
+
+    /* RecyclerView Variables */
     RecyclerView mRecyclerView;
     private RecyclerView.LayoutManager mLayoutManager;
+    private MenuDisplayAdapter mMenuDisplayAdapter;
+
 
     @Override
     protected void onCreate(Bundle state) {
         super.onCreate(state);
 
+        // Required to access the catering servers
         ((WhatsForLunchApplication) getApplication()).inject(this);
 
+        this.setContentView(R.layout.activity_menu_display);
+        // Extract the current mensa information (note: can be null!)
+        mMensa = (MensaContainer) getIntent().getSerializableExtra(Constants.MENU_SELECTOR);
 
-//        this.setContentView(R.layout.activity_menu_display);
-//        mMenuAdapter = new MenuAdapter(this, null, 0);
-//        final ListView list = (ListView) findViewById(R.id.menuList);
-//        list.setAdapter(mMenuAdapter);
-
-        this.setContentView(R.layout.activity_main);
-        mMenuCardAdapter = new MenuCardAdapter(this, null);
+        // Get RecyclerView instance
         mRecyclerView = (RecyclerView) findViewById(R.id.menuRecycler);
+        // Snaps the cards to the middle of the screen
         SnapHelper snapHelper = new PagerSnapHelper();
         snapHelper.attachToRecyclerView(mRecyclerView);
-        mRecyclerView.setAdapter(mMenuCardAdapter);
+        mMenuDisplayAdapter = new MenuDisplayAdapter(this, null);
+        mRecyclerView.setAdapter(mMenuDisplayAdapter);
+        // Influenced from https://goo.gl/B9CsiA and https://goo.gl/fQbj5E
         mLayoutManager = new LinearLayoutManager(this, LinearLayoutManager.HORIZONTAL, false);
         mRecyclerView.setLayoutManager(mLayoutManager);
 
-        mMensa = (MensaContainer) getIntent().getSerializableExtra(Constants.MENU_SELECTOR);
-
+        // Button to choose a new mensa
         mFab = (FloatingActionButton) findViewById(R.id.fab);
         mFab.setOnClickListener(new View.OnClickListener() {
             @Override
@@ -96,6 +84,7 @@ public class MenuDisplayActivity extends AppCompatActivity {
 
     }
 
+    // Adapted from CampusInfo app to handle syncing the menu data
     @Override
     public void onPause() {
         super.onPause();
@@ -106,88 +95,75 @@ public class MenuDisplayActivity extends AppCompatActivity {
             mLoadMenuTask.cancel(true);
             mLoadMenuTask = null;
         }
-        // Explicitly release the cursor. Otherwise these nasty "cursor not finalized" warnings pop up. Although I must
-        // admit I don't know why.
-        if (mMenuCardAdapter != null) {
-            mMenuCardAdapter.changeCursor(null);
+        if (mMenuDisplayAdapter != null) {
+            mMenuDisplayAdapter.changeCursor(null);
         }
     }
 
+    // Adapted from CampusInfo app to handle syncing the menu data
     @Override
     public void onResume() {
         super.onResume();
         mMenuContentObserver = new MenuContentObserver(new Handler(Looper.getMainLooper()));
         getContentResolver().registerContentObserver(CateringContentProvider.CONTENT_URI,
                 true, mMenuContentObserver);
+        // Restart the task
         mLoadMenuTask = new LoadMenuTask();
         mLoadMenuTask.execute();
     }
 
+    // I use a custom toolbar to display the calendar icon. I got the
+    // idea to use this override here:
+    // https://medium.com/@101/android-toolbar-for-appcompatactivity-671b1d10f354
     @Override
     public boolean onCreateOptionsMenu(Menu menu) {
         MenuInflater inflater = getMenuInflater();
-        inflater.inflate(R.menu.menu_toolbar, menu);
-        setUpToolbar();
-        return true;
-    }
-
-    @Override
-    public boolean onOptionsItemSelected(MenuItem menuItem) {
-        LoadNewActivity(DayPickerActivity.class);
-        return true;
-    }
-
-    private void LoadNewActivity(Class c) {
-        Intent intent = new Intent(getApplicationContext(), c);
-        intent.putExtra(Constants.MENU_SELECTOR, mMensa);
-        startActivity(intent);
-    }
-
-    private void setUpToolbar() {
+        inflater.inflate(R.menu.menu_display_toolbar, menu);
         ActionBar toolbar = getSupportActionBar();
-//        toolbar.setHomeAsUpIndicator(R.drawable.ic_arrow_back_black_24dp);
-//        toolbar.setDisplayHomeAsUpEnabled(true);
-//        toolbar.setBackgroundDrawable(new ColorDrawable(getResources().getColor(R.color.colorWhite)));
         if (mMensa == null) {
+            Log.d("MenuDisplay", "The mensa is null");
             toolbar.setTitle("NULL");
             toolbar.setSubtitle("null");
         } else {
             toolbar.setTitle(mMensa.getName());
             toolbar.setSubtitle(mMensa.getDayOfWeek());
         }
+        return true;
     }
 
+    @Override
+    public boolean onOptionsItemSelected(MenuItem menuItem) {
+        // There's only one icon accessible from this view: the calendar day picker icon
+        LoadNewActivity(DayPickerActivity.class);
+        return true;
+    }
+
+    private void LoadNewActivity(Class c) {
+        Intent intent = new Intent(getApplicationContext(), c);
+        // always pass the mensa so you can resume the app state if the user hits back
+        intent.putExtra(Constants.MENU_SELECTOR, mMensa);
+        startActivity(intent);
+    }
+
+    // Taken from CampusInfo app and adapted to suit current use case.
     private class LoadMenuTask extends AsyncTask<Void, Void, Optional<Cursor>> {
 
         @Override
-        protected void onPreExecute() {
-        }
-
-        @Override
         protected Optional<Cursor> doInBackground(Void... params) {
-            Log.e("CJ", mMensa.getName());
             return Optional.fromNullable(mCateringController.getMenu(mMensa.getFacilityId(), mMensa.getDay()));
         }
 
         @Override
         protected void onPostExecute(Optional<Cursor> optionalCursor) {
-            Log.e("CJ", "post");
-            if (this.isCancelled() || mMenuCardAdapter == null) {
+            if (this.isCancelled() || mMenuDisplayAdapter == null) {
                 return;
             }
-            if (optionalCursor.get().moveToFirst()) {
-                DishDao dish = DishDao.fromCursor(optionalCursor.get());
-                Log.e("CJ", dish.toString());
-            }
-            Log.e("CJ", DatabaseUtils.dumpCursorToString(optionalCursor.get()));
-            mMenuCardAdapter.changeCursor(optionalCursor.orNull());
-        }
-
-        @Override
-        protected void onCancelled() {
+            Log.d("MenuDisplay", DatabaseUtils.dumpCursorToString(optionalCursor.get()));
+            mMenuDisplayAdapter.changeCursor(optionalCursor.orNull());
         }
     }
 
+    // Taken from CampusInfo app and adapted to suit current use case.
     private class MenuContentObserver extends ContentObserver {
 
         public MenuContentObserver(Handler handler) {
@@ -206,6 +182,7 @@ public class MenuDisplayActivity extends AppCompatActivity {
 
         @Override
         public void onChange(boolean selfChange, Uri uri) {
+            // Redo task
             mLoadMenuTask = new LoadMenuTask();
             mLoadMenuTask.execute();
         }
