@@ -1,6 +1,9 @@
 package com.zhaw.catiejo.whatsforlunch;
+
+import android.util.Log;
 import org.joda.time.LocalDate;
 import java.io.Serializable;
+
 import static com.google.common.base.Preconditions.checkNotNull;
 
 public class MensaContainer implements Serializable {
@@ -27,30 +30,13 @@ public class MensaContainer implements Serializable {
 
     public static String getWeekday(LocalDate date) {
         int day = date.getDayOfWeek(); // Monday = 1, Sunday = 7
-        String weekday = "";
-        switch(day) {
-            case 1:
-                weekday = "Monday";
-                break;
-            case 2:
-                weekday = "Tuesday";
-                break;
-            case 3:
-                weekday = "Wednesday";
-                break;
-            case 4:
-                weekday = "Thursday";
-                break;
-            case 5:
-                weekday = "Friday";
-                break;
-            case 6:
-                weekday = "Saturday";
-                break;
-            default:
-                weekday = "Sunday";
-                break;
+        String[] daysOfTheWeek = {"Monday", "Tuesday", "Wednesday", "Thursday", "Friday"};
+        for (int i = 0; i < daysOfTheWeek.length; i++) {
+            if (day == i + 1) {
+                return daysOfTheWeek[i];
+            }
         }
-        return weekday;
+        Log.e("MensaContainer", "Day of the week was not found!");
+        return "Weekend";
     }
 }

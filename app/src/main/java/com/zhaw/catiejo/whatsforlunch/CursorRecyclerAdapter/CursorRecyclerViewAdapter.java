@@ -1,4 +1,4 @@
-package com.zhaw.catiejo.whatsforlunch.CursorRecyclerAdapter;
+package com.zhaw.catiejo.whatsforlunch.cursorrecycleradapter;
 
 /*
  * Copyright (C) 2014 skyfish.jy@gmail.com

@@ -26,14 +26,14 @@
         android:supportsRtl="true"
         android:theme="@style/AppTheme"
         tools:ignore="GoogleAppIndexingWarning">
-        <activity android:name=".MenuDisplay.MenuDisplayActivity" android:screenOrientation="portrait"></activity>
+        <activity android:name=".menu_display.MenuDisplayActivity" android:screenOrientation="portrait"></activity>
 
         <meta-data
             android:name="preloaded_fonts"
             android:resource="@array/preloaded_fonts" />
 
-        <activity android:name=".DayPicker.DayPickerActivity" android:screenOrientation="portrait"></activity>
-        <activity android:name=".MensaPicker.MensaPickerActivity" android:screenOrientation="portrait">
+        <activity android:name=".day_picker.DayPickerActivity" android:screenOrientation="portrait"></activity>
+        <activity android:name=".mensa_picker.MensaPickerActivity" android:screenOrientation="portrait">
             <intent-filter>
                 <action android:name="android.intent.action.MAIN" />
 

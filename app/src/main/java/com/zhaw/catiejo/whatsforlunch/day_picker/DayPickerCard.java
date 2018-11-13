@@ -1,4 +1,4 @@
-package com.zhaw.catiejo.whatsforlunch.DayPicker;
+package com.zhaw.catiejo.whatsforlunch.day_picker;
 
 import com.zhaw.catiejo.whatsforlunch.MensaContainer;
 

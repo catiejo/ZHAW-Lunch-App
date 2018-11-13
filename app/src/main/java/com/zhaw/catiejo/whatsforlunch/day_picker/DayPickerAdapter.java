@@ -1,4 +1,4 @@
-package com.zhaw.catiejo.whatsforlunch.DayPicker;
+package com.zhaw.catiejo.whatsforlunch.day_picker;
 
 import android.graphics.Color;
 import android.graphics.Paint;
@@ -28,9 +28,9 @@ public class DayPickerAdapter extends RecyclerView.Adapter<DayPickerAdapter.DayC
 
         public DayCardViewHolder(CardView dc) {
             super(dc);
-            dayOfWeek = (TextView) dc.findViewById(R.id.mainText);
-            dayOfYear = (TextView) dc.findViewById(R.id.supplementaryText);
-            checkMark = (ImageView) dc.findViewById(R.id.checkMark);
+            dayOfWeek = dc.findViewById(R.id.mainText);
+            dayOfYear = dc.findViewById(R.id.supplementaryText);
+            checkMark = dc.findViewById(R.id.checkMark);
         }
 
         public void bind(final DayPickerCard card, final OnItemClickListener listener) {

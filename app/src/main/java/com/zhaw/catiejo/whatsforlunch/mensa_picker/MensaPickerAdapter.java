@@ -1,4 +1,4 @@
-package com.zhaw.catiejo.whatsforlunch.MensaPicker;
+package com.zhaw.catiejo.whatsforlunch.mensa_picker;
 
 import android.content.Context;
 import android.content.Intent;
@@ -11,9 +11,9 @@ import android.view.ViewGroup;
 import android.widget.ImageView;
 import android.widget.TextView;
 
-import com.zhaw.catiejo.whatsforlunch.CursorRecyclerAdapter.CursorRecyclerViewAdapter;
+import com.zhaw.catiejo.whatsforlunch.cursorrecycleradapter.CursorRecyclerViewAdapter;
 import com.zhaw.catiejo.whatsforlunch.MensaContainer;
-import com.zhaw.catiejo.whatsforlunch.MenuDisplay.MenuDisplayActivity;
+import com.zhaw.catiejo.whatsforlunch.menu_display.MenuDisplayActivity;
 import com.zhaw.catiejo.whatsforlunch.R;
 import com.zhaw.catiejo.whatsforlunch._campusinfo.helper.Constants;
 
@@ -31,9 +31,9 @@ public class MensaPickerAdapter extends CursorRecyclerViewAdapter<MensaPickerAda
 
         public MensaPickerViewHolder(CardView cv) {
             super(cv);
-            checkMark = (ImageView) cv.findViewById(R.id.checkMark);
-            mainText = (TextView) cv.findViewById(R.id.mainText);
-            supplementaryText = (TextView) cv.findViewById(R.id.supplementaryText);
+            checkMark = cv.findViewById(R.id.checkMark);
+            mainText = cv.findViewById(R.id.mainText);
+            supplementaryText = cv.findViewById(R.id.supplementaryText);
         }
     }
 

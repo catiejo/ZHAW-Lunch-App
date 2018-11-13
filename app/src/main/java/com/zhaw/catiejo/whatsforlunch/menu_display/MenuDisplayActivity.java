@@ -1,4 +1,4 @@
-package com.zhaw.catiejo.whatsforlunch.MenuDisplay;
+package com.zhaw.catiejo.whatsforlunch.menu_display;
 
 import android.database.ContentObserver;
 import android.database.Cursor;
@@ -23,9 +23,9 @@ import android.view.View;
 import android.widget.Button;
 import com.google.common.base.Optional;
 import com.squareup.otto.Bus;
-import com.zhaw.catiejo.whatsforlunch.DayPicker.DayPickerActivity;
+import com.zhaw.catiejo.whatsforlunch.day_picker.DayPickerActivity;
 import com.zhaw.catiejo.whatsforlunch.MensaContainer;
-import com.zhaw.catiejo.whatsforlunch.MensaPicker.MensaPickerActivity;
+import com.zhaw.catiejo.whatsforlunch.mensa_picker.MensaPickerActivity;
 import com.zhaw.catiejo.whatsforlunch.R;
 import com.zhaw.catiejo.whatsforlunch.WhatsForLunchApplication;
 import com.zhaw.catiejo.whatsforlunch._campusinfo.CateringContentProvider;
@@ -63,7 +63,7 @@ public class MenuDisplayActivity extends AppCompatActivity {
         mMensa = (MensaContainer) getIntent().getSerializableExtra(Constants.MENU_SELECTOR);
 
         // Get RecyclerView instance
-        mRecyclerView = (RecyclerView) findViewById(R.id.menuRecycler);
+        mRecyclerView = findViewById(R.id.menuRecycler);
         // Snaps the cards to the middle of the screen
         SnapHelper snapHelper = new PagerSnapHelper();
         snapHelper.attachToRecyclerView(mRecyclerView);
@@ -122,10 +122,8 @@ public class MenuDisplayActivity extends AppCompatActivity {
         if (mMensa == null) {
             Log.d("MenuDisplay", "The mensa is null");
             toolbar.setTitle("NULL");
-//            toolbar.setSubtitle("null");
         } else {
             toolbar.setTitle(mMensa.getName() + " (" + mMensa.getDayOfWeek() + ")");
-//            toolbar.setSubtitle(mMensa.getDayOfWeek());
         }
         return true;
     }

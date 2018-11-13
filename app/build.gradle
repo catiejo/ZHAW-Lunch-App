@@ -6,7 +6,7 @@ apply plugin: 'com.android.application'
 sonarqube {
     properties {
         property 'sonar.projectName', 'WhatsForLunch:app'
-        property "sonar.exclusions", "**/CursorRecyclerAdapter/**/*,**/_campusinfo/**/*"
+        property "sonar.exclusions", "**/cursorrecycleradapter/**/*,**/_campusinfo/**/*"
     }
 }
 

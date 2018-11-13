@@ -1,4 +1,4 @@
-package com.zhaw.catiejo.whatsforlunch.MensaPicker;
+package com.zhaw.catiejo.whatsforlunch.mensa_picker;
 
 import android.content.Intent;
 import android.database.ContentObserver;
@@ -11,17 +11,13 @@ import android.os.Looper;
 import android.support.v7.app.ActionBar;
 import android.support.v7.app.AppCompatActivity;
 import android.support.v7.widget.LinearLayoutManager;
-import android.support.v7.widget.PagerSnapHelper;
 import android.support.v7.widget.RecyclerView;
-import android.support.v7.widget.SnapHelper;
 import android.view.MenuItem;
-import android.widget.ListView;
-import android.widget.Toolbar;
 
 import com.google.common.base.Optional;
 import com.squareup.otto.Bus;
 import com.zhaw.catiejo.whatsforlunch.MensaContainer;
-import com.zhaw.catiejo.whatsforlunch.MenuDisplay.MenuDisplayActivity;
+import com.zhaw.catiejo.whatsforlunch.menu_display.MenuDisplayActivity;
 import com.zhaw.catiejo.whatsforlunch.R;
 import com.zhaw.catiejo.whatsforlunch.WhatsForLunchApplication;
 import com.zhaw.catiejo.whatsforlunch._campusinfo.CateringContentProvider;
@@ -41,13 +37,11 @@ public class MensaPickerActivity extends AppCompatActivity {
 
     private CanteenContentObserver canteenContentObserver;
     private LoadCanteensTask loadCanteensTask;
+    private MensaPickerAdapter mMensaPickerAdapter; //used for LoadCanteensTask and CanteenContentObserver
+
     // The mensa from the previous task. Needed in case user hits cancel button in toolbar
     private MensaContainer mMensa;
 
-    /* RecyclerView Variables */
-    RecyclerView mRecyclerView;
-    private RecyclerView.LayoutManager mLayoutManager;
-    private MensaPickerAdapter mMensaPickerAdapter;
 
 
     @Override
@@ -61,8 +55,8 @@ public class MensaPickerActivity extends AppCompatActivity {
         mMensa = (MensaContainer) getIntent().getSerializableExtra(Constants.MENU_SELECTOR);
 
         // Set up RecyclerView
-        mRecyclerView = (RecyclerView) findViewById(R.id.mensaRecycler);
-        mLayoutManager = new LinearLayoutManager(this);
+        RecyclerView mRecyclerView = findViewById(R.id.mensaRecycler);
+        RecyclerView.LayoutManager mLayoutManager = new LinearLayoutManager(this);
         mRecyclerView.setLayoutManager(mLayoutManager);
         mMensaPickerAdapter = new MensaPickerAdapter(this, null);
         mRecyclerView.setAdapter(mMensaPickerAdapter);
@@ -112,17 +106,14 @@ public class MensaPickerActivity extends AppCompatActivity {
     // credit: https://stackoverflow.com/questions/35810229/how-to-display-and-set-click-event-on-back-arrow-on-toolbar
     @Override
     public boolean onOptionsItemSelected(MenuItem item) {
-        switch (item.getItemId()) {
-            case android.R.id.home:
-                Intent intent = new Intent(this, MenuDisplayActivity.class);
-                intent.putExtra(Constants.MENU_SELECTOR, mMensa);
-                startActivity(intent);
-                finish();
-                return true;
-
-            default:
-                return super.onOptionsItemSelected(item);
+        if (item.getItemId() == android.R.id.home) {
+            Intent intent = new Intent(this, MenuDisplayActivity.class);
+            intent.putExtra(Constants.MENU_SELECTOR, mMensa);
+            startActivity(intent);
+            finish();
+            return true;
         }
+        return super.onOptionsItemSelected(item);
     }
 
     // Adapted from CampusInfo app to handle fetching the mensas

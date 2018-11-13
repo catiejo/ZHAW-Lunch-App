@@ -5,9 +5,9 @@ import android.content.Context;
 import com.squareup.okhttp.HttpResponseCache;
 import com.squareup.otto.Bus;
 import com.squareup.otto.ThreadEnforcer;
-import com.zhaw.catiejo.whatsforlunch.DayPicker.DayPickerActivity;
-import com.zhaw.catiejo.whatsforlunch.MensaPicker.MensaPickerActivity;
-import com.zhaw.catiejo.whatsforlunch.MenuDisplay.MenuDisplayActivity;
+import com.zhaw.catiejo.whatsforlunch.day_picker.DayPickerActivity;
+import com.zhaw.catiejo.whatsforlunch.mensa_picker.MensaPickerActivity;
+import com.zhaw.catiejo.whatsforlunch.menu_display.MenuDisplayActivity;
 import com.zhaw.catiejo.whatsforlunch._campusinfo.CateringController;
 import com.zhaw.catiejo.whatsforlunch._campusinfo.CateringRemoteFacade;
 import com.zhaw.catiejo.whatsforlunch._campusinfo.ICateringController;
@@ -29,6 +29,7 @@ import dagger.Provides;
 public class WhatsForLunchApplication extends Application implements DaggerContainer {
     private ObjectGraph mGraph;
 
+    @Override
     public void onCreate() {
         super.onCreate();
         mGraph = ObjectGraph.create(new MensaHelper(this));
@@ -83,7 +84,7 @@ final class MensaHelper {
     ResponseCache provideResponseCache() {
         try {
             File httpCacheDir = new File(this.appContext.getCacheDir(), "http");
-            long httpCacheSize = 10 * 1024 * 1024; // 10 MiB
+            long httpCacheSize = (long) 10 * 1024 * 1024; // 10 MiB
             return new HttpResponseCache(httpCacheDir, httpCacheSize);
         } catch (IOException e) {
             throw new RuntimeException(e);

@@ -1,4 +1,4 @@
-package com.zhaw.catiejo.whatsforlunch.MenuDisplay;
+package com.zhaw.catiejo.whatsforlunch.menu_display;
 
 import android.content.Context;
 import android.database.Cursor;
@@ -10,7 +10,7 @@ import android.support.v7.widget.RecyclerView;
 import com.google.common.base.Joiner;
 import com.google.common.base.Optional;
 import com.google.common.collect.Lists;
-import com.zhaw.catiejo.whatsforlunch.CursorRecyclerAdapter.CursorRecyclerViewAdapter;
+import com.zhaw.catiejo.whatsforlunch.cursorrecycleradapter.CursorRecyclerViewAdapter;
 import com.zhaw.catiejo.whatsforlunch.R;
 import com.zhaw.catiejo.whatsforlunch._campusinfo.dao.DishDao;
 import com.zhaw.catiejo.whatsforlunch._campusinfo.helper.Constants;
@@ -32,12 +32,12 @@ public class MenuDisplayAdapter extends CursorRecyclerViewAdapter<MenuDisplayAda
 
         public MenuDisplayViewHolder(CardView cv) {
             super(cv);
-            foodCounter = (TextView) cv.findViewById(R.id.foodCounter);
-            menuItem = (TextView) cv.findViewById(R.id.menuItem);
-            menuDescription = (TextView) cv.findViewById(R.id.menuDescription);
-            studentPrice = (TextView) cv.findViewById(R.id.studentPrice);
-            employeePrice = (TextView) cv.findViewById(R.id.employeePrice);
-            externalPrice = (TextView) cv.findViewById(R.id.externalPrice);
+            foodCounter = cv.findViewById(R.id.foodCounter);
+            menuItem = cv.findViewById(R.id.menuItem);
+            menuDescription = cv.findViewById(R.id.menuDescription);
+            studentPrice = cv.findViewById(R.id.studentPrice);
+            employeePrice = cv.findViewById(R.id.employeePrice);
+            externalPrice = cv.findViewById(R.id.externalPrice);
         }
     }
 

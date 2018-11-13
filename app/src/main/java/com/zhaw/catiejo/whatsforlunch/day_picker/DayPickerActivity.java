@@ -1,4 +1,4 @@
-package com.zhaw.catiejo.whatsforlunch.DayPicker;
+package com.zhaw.catiejo.whatsforlunch.day_picker;
 
 import android.content.Intent;
 import android.support.v7.app.ActionBar;
@@ -8,7 +8,7 @@ import android.support.v7.widget.LinearLayoutManager;
 import android.support.v7.widget.RecyclerView;
 import android.view.MenuItem;
 import com.zhaw.catiejo.whatsforlunch.MensaContainer;
-import com.zhaw.catiejo.whatsforlunch.MenuDisplay.MenuDisplayActivity;
+import com.zhaw.catiejo.whatsforlunch.menu_display.MenuDisplayActivity;
 import com.zhaw.catiejo.whatsforlunch.R;
 import com.zhaw.catiejo.whatsforlunch._campusinfo.helper.Constants;
 import org.joda.time.LocalDate;
@@ -17,9 +17,6 @@ import java.util.List;
 
 
 public class DayPickerActivity extends AppCompatActivity {
-    private RecyclerView mRecyclerView;
-    private RecyclerView.LayoutManager mLayoutManager;
-    private DayPickerAdapter mDayPickerAdapter;
     // The mensa from the previous task. Needed in case user hits cancel button in toolbar
     private MensaContainer mMensa;
 
@@ -31,11 +28,11 @@ public class DayPickerActivity extends AppCompatActivity {
         mMensa = (MensaContainer) getIntent().getSerializableExtra(Constants.MENU_SELECTOR); // can be null, but shouldn't be
 
         // Set up RecyclerView
-        mRecyclerView = (RecyclerView) findViewById(R.id.dayRecycler);
-        mLayoutManager = new LinearLayoutManager(this);
+        RecyclerView mRecyclerView = findViewById(R.id.dayRecycler);
+        RecyclerView.LayoutManager mLayoutManager = new LinearLayoutManager(this);
         mRecyclerView.setLayoutManager(mLayoutManager);
         // Click listener creates a new mensa object with the selected date, then goes back to the menu display
-        mDayPickerAdapter = new DayPickerAdapter(getDayCardList(mMensa.getDay()), new DayPickerAdapter.OnItemClickListener() {
+        DayPickerAdapter mDayPickerAdapter = new DayPickerAdapter(getDayCardList(mMensa.getDay()), new DayPickerAdapter.OnItemClickListener() {
             @Override
             public void onItemClick(DayPickerCard card) {
                 if (card.getIsInPast()) {
@@ -88,17 +85,15 @@ public class DayPickerActivity extends AppCompatActivity {
     // https://stackoverflow.com/questions/35810229/how-to-display-and-set-click-event-on-back-arrow-on-toolbar
     @Override
     public boolean onOptionsItemSelected(MenuItem item) {
-        switch (item.getItemId()) {
-            case android.R.id.home:
-                Intent intent = new Intent(this, MenuDisplayActivity.class);
-                intent.putExtra(Constants.MENU_SELECTOR, mMensa);
-                startActivity(intent);
-                finish();
-                return true;
-
-            default:
-                return super.onOptionsItemSelected(item);
+        if (item.getItemId() == android.R.id.home) {
+            Intent intent = new Intent(this, MenuDisplayActivity.class);
+            intent.putExtra(Constants.MENU_SELECTOR, mMensa);
+            startActivity(intent);
+            finish();
+            return true;
         }
+        return super.onOptionsItemSelected(item);
     }
+
 
 }
