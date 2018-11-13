@@ -45,8 +45,7 @@ public class MenuDisplayAdapter extends CursorRecyclerViewAdapter<MenuDisplayAda
     public MenuDisplayViewHolder onCreateViewHolder(ViewGroup parent, int viewType) {
         CardView cv = (CardView) LayoutInflater.from(parent.getContext())
                 .inflate(R.layout.card_menu, parent, false);
-        MenuDisplayViewHolder vh = new MenuDisplayViewHolder(cv);
-        return vh;
+        return new MenuDisplayViewHolder(cv);
 
     }
 

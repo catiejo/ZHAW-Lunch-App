@@ -40,9 +40,7 @@ public class MensaPickerActivity extends AppCompatActivity {
     private MensaPickerAdapter mMensaPickerAdapter; //used for LoadCanteensTask and CanteenContentObserver
 
     // The mensa from the previous task. Needed in case user hits cancel button in toolbar
-    public static MensaContainer mMensa;
-
-
+    private static MensaContainer mMensa;
 
     @Override
     public void onCreate(Bundle state) {
@@ -52,7 +50,7 @@ public class MensaPickerActivity extends AppCompatActivity {
         ((WhatsForLunchApplication) getApplication()).inject(this);
 
         this.setContentView(R.layout.activity_mensa_picker);
-        mMensa = (MensaContainer) getIntent().getSerializableExtra(Constants.MENU_SELECTOR);
+        setCurrentMensa((MensaContainer) getIntent().getSerializableExtra(Constants.MENU_SELECTOR));
 
         // Set up RecyclerView
         RecyclerView mRecyclerView = findViewById(R.id.mensaRecycler);
@@ -89,6 +87,16 @@ public class MensaPickerActivity extends AppCompatActivity {
             loadCanteensTask.cancel(true);
             loadCanteensTask = null;
         }
+    }
+
+    public static MensaContainer getCurrentMensa() {
+        if (mMensa == null) {
+            return null;
+        }
+        return mMensa;
+    }
+    private static void setCurrentMensa(MensaContainer mensa) {
+        mMensa = mensa;
     }
 
 

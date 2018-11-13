@@ -42,13 +42,9 @@ public class MenuDisplayActivity extends AppCompatActivity {
 
     private MenuContentObserver mMenuContentObserver;
     private LoadMenuTask mLoadMenuTask;
-    private MensaContainer mMensa; //The mensa we're currently viewing
-    private Button mExtendedFab;
+    private MenuDisplayAdapter mMenuDisplayAdapter; //used for LoadMenuTask and MenuContentObserver
 
-    /* RecyclerView Variables */
-    RecyclerView mRecyclerView;
-    private RecyclerView.LayoutManager mLayoutManager;
-    private MenuDisplayAdapter mMenuDisplayAdapter;
+    private MensaContainer mMensa; //The mensa we're currently viewing
 
 
     @Override
@@ -63,19 +59,19 @@ public class MenuDisplayActivity extends AppCompatActivity {
         mMensa = (MensaContainer) getIntent().getSerializableExtra(Constants.MENU_SELECTOR);
 
         // Get RecyclerView instance
-        mRecyclerView = findViewById(R.id.menuRecycler);
+        RecyclerView recyclerView = findViewById(R.id.menuRecycler);
         // Snaps the cards to the middle of the screen
         SnapHelper snapHelper = new PagerSnapHelper();
-        snapHelper.attachToRecyclerView(mRecyclerView);
+        snapHelper.attachToRecyclerView(recyclerView);
         mMenuDisplayAdapter = new MenuDisplayAdapter(this, null);
-        mRecyclerView.setAdapter(mMenuDisplayAdapter);
+        recyclerView.setAdapter(mMenuDisplayAdapter);
         // Influenced from https://goo.gl/B9CsiA and https://goo.gl/fQbj5E
-        mLayoutManager = new LinearLayoutManager(this, LinearLayoutManager.HORIZONTAL, false);
-        mRecyclerView.setLayoutManager(mLayoutManager);
+        RecyclerView.LayoutManager layoutManager = new LinearLayoutManager(this, LinearLayoutManager.HORIZONTAL, false);
+        recyclerView.setLayoutManager(layoutManager);
 
         // Button to choose a new mensa
-        mExtendedFab = (Button) findViewById(R.id.fab);
-        mExtendedFab.setOnClickListener(new View.OnClickListener() {
+        Button extendedFab = findViewById(R.id.fab);
+        extendedFab.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
                 LoadNewActivity(MensaPickerActivity.class);

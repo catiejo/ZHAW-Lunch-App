@@ -42,8 +42,7 @@ public class MensaPickerAdapter extends CursorRecyclerViewAdapter<MensaPickerAda
     public MensaPickerAdapter.MensaPickerViewHolder onCreateViewHolder(ViewGroup parent, int viewType) {
         CardView cv = (CardView) LayoutInflater.from(parent.getContext())
                 .inflate(R.layout.card_picker, parent, false);
-        MensaPickerViewHolder vh = new MensaPickerViewHolder(cv);
-        return vh;
+        return new MensaPickerViewHolder(cv);
 
     }
 
@@ -54,15 +53,15 @@ public class MensaPickerAdapter extends CursorRecyclerViewAdapter<MensaPickerAda
                 cursor.getString(cursor.getColumnIndex("Name")));
         holder.mainText.setText(currentMensa.getName());
         holder.supplementaryText.setText(""); //TODO: distance when I get location services working
-        if (MensaPickerActivity.mMensa != null && MensaPickerActivity.mMensa.getFacilityId() == currentMensa.getFacilityId()) {
+        if (MensaPickerActivity.getCurrentMensa() != null && MensaPickerActivity.getCurrentMensa().getFacilityId() == currentMensa.getFacilityId()) {
             holder.checkMark.setImageResource(R.drawable.ic_check_blue_24dp);
-            holder.mainText.setTextColor(Color.parseColor("#4A90E2"));
+            holder.mainText.setTextColor(Color.parseColor("#1166AC"));
         }
         // credit: https://stackoverflow.com/questions/24885223/why-doesnt-recyclerview-have-onitemclicklistener
         holder.itemView.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
-                //FIXME always resets to current day when you pick a mensa
+                //Note: always resets to current day when you pick a mensa
                 Intent intent = new Intent(v.getContext(), MenuDisplayActivity.class);
                 intent.putExtra(Constants.MENU_SELECTOR, currentMensa);
                 v.getContext().startActivity(intent);

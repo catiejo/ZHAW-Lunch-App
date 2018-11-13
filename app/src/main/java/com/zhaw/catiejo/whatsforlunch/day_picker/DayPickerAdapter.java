@@ -52,8 +52,7 @@ public class DayPickerAdapter extends RecyclerView.Adapter<DayPickerAdapter.DayC
     public DayPickerAdapter.DayCardViewHolder onCreateViewHolder(ViewGroup parent, int viewType) {
         CardView c = (CardView) LayoutInflater.from(parent.getContext())
                 .inflate(R.layout.card_picker, parent, false);
-        DayCardViewHolder vh = new DayCardViewHolder(c);
-        return vh;
+        return new DayCardViewHolder(c);
     }
 
     @Override
@@ -68,7 +67,7 @@ public class DayPickerAdapter extends RecyclerView.Adapter<DayPickerAdapter.DayC
         }
         if (dc.getIsSelected()) {
             holder.checkMark.setImageResource(R.drawable.ic_check_blue_24dp);
-            holder.dayOfWeek.setTextColor(Color.parseColor("#4A90E2"));
+            holder.dayOfWeek.setTextColor(Color.parseColor("#1166AC"));
         }
     }
 
