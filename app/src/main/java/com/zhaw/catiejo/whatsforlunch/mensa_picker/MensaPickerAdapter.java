@@ -3,6 +3,7 @@ package com.zhaw.catiejo.whatsforlunch.mensa_picker;
 import android.content.Context;
 import android.content.Intent;
 import android.database.Cursor;
+import android.graphics.Color;
 import android.support.v7.widget.CardView;
 import android.support.v7.widget.RecyclerView;
 import android.view.LayoutInflater;
@@ -53,6 +54,10 @@ public class MensaPickerAdapter extends CursorRecyclerViewAdapter<MensaPickerAda
                 cursor.getString(cursor.getColumnIndex("Name")));
         holder.mainText.setText(currentMensa.getName());
         holder.supplementaryText.setText(""); //TODO: distance when I get location services working
+        if (MensaPickerActivity.mMensa != null && MensaPickerActivity.mMensa.getFacilityId() == currentMensa.getFacilityId()) {
+            holder.checkMark.setImageResource(R.drawable.ic_check_blue_24dp);
+            holder.mainText.setTextColor(Color.parseColor("#4A90E2"));
+        }
         // credit: https://stackoverflow.com/questions/24885223/why-doesnt-recyclerview-have-onitemclicklistener
         holder.itemView.setOnClickListener(new View.OnClickListener() {
             @Override

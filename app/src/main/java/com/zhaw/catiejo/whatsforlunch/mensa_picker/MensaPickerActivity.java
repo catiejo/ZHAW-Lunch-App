@@ -40,7 +40,7 @@ public class MensaPickerActivity extends AppCompatActivity {
     private MensaPickerAdapter mMensaPickerAdapter; //used for LoadCanteensTask and CanteenContentObserver
 
     // The mensa from the previous task. Needed in case user hits cancel button in toolbar
-    private MensaContainer mMensa;
+    public static MensaContainer mMensa;
 
 
 
